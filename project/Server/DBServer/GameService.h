@@ -6,8 +6,7 @@ class CConnection;
 
 #define DB_THREAD_NUM 10
 
-class CGameService :
-	public ServiceBase
+class CGameService  : public IPacketDispatcher
 {
 private:
 	CGameService(void);
@@ -23,9 +22,11 @@ public:
 
 	BOOL		Run();
 
-	BOOL		OnNewConnection(NetPacket *pPacket);
+	BOOL		OnNewConnect(CConnection *pConn);
 
-	BOOL		OnCloseConnection(NetPacket *pPacket);
+	BOOL		OnCloseConnect(CConnection *pConn);
+
+	BOOL		DispatchPacket( NetPacket *pNetPacket);
 
 public:
 	CDBCmdHandler		m_DBCmdHandler;

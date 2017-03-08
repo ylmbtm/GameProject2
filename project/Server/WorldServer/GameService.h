@@ -3,7 +3,7 @@
 #include "ServiceBase.h"
 #include "WorldCmdHandler.h"
 
-class CGameService :public ServiceBase
+class CGameService : public IPacketDispatcher
 {
 private:
 	CGameService(void);
@@ -14,8 +14,15 @@ public:
 
 	BOOL		Init();
 
+	BOOL		Uninit();
+
 	BOOL		Run();
 
+	BOOL		OnNewConnect(CConnection *pConn);
+
+	BOOL		OnCloseConnect(CConnection *pConn);
+
+	BOOL		DispatchPacket( NetPacket *pNetPacket);
 
 public:
 	BOOL       SendCmdToDBConnection(IDataBuffer *pBuffer);

@@ -39,9 +39,9 @@ BOOL CScene::Uninit()
 	return TRUE;
 }
 
-BOOL CScene::DispatchPacket(NetPacket *pNetPack)
+BOOL CScene::DispatchPacket(NetPacket *pNetPacket)
 {
-	PacketHeader *pPacketHeader = (PacketHeader *)pNetPack->m_pDataBuffer->GetBuffer();
+	PacketHeader *pPacketHeader = (PacketHeader *)pNetPacket->m_pDataBuffer->GetBuffer();
 	if(pPacketHeader == NULL)
 	{
 		ASSERT_FAIELD;
@@ -58,7 +58,7 @@ BOOL CScene::DispatchPacket(NetPacket *pNetPack)
 			CPlayerObject *pPlayerObject = m_PlayerObjectMgr.GetPlayer(pPacketHeader->u64CharID);
 			if(pPlayerObject != NULL)
 			{
-				pPlayerObject->DispatchPacket(pNetPack);
+				pPlayerObject->DispatchPacket(pNetPacket);
 			}
 		}
 		break;
@@ -108,9 +108,10 @@ BOOL CScene::AddToMapPos( CWorldObject *pWorldObject, FLOAT x, FLOAT z )
 BOOL CScene::OnCmdPlayerMove(NetPacket *pNetPack)
 {
 	StCharMoveReq CharMoveReq;
-	pBufferHelper->Read(CharMoveReq);
+	CBufferHelper bh(FALSE, pNetPack->m_pDataBuffer);
+	bh.Read(CharMoveReq);
 
-	CPlayerObject *pPlayerObj = m_PlayerObjectMgr.GetPlayer(pBufferHelper->GetPacketHeader()->u64CharID);
+	CPlayerObject *pPlayerObj = m_PlayerObjectMgr.GetPlayer(bh.GetPacketHeader()->u64CharID);
 	if(pPlayerObj == NULL)
 	{
 		ASSERT_FAIELD;
@@ -394,8 +395,9 @@ BOOL CScene::SendRemoveGridsToPlayer( INT32 Grids[9], CPlayerObject *pPlayerObj)
 BOOL CScene::OnCmdLeaveGameReq(NetPacket *pNetPack)
 {
 	StCharLeaveGameReq CharLeaveGameReq;
+	CBufferHelper bh(FALSE, pNetPack->m_pDataBuffer);
 
-	pBufferHelper->Read(CharLeaveGameReq);
+	bh.Read(CharLeaveGameReq);
 
 	if(CharLeaveGameReq.dwLeaveReason == LGR_Disconnect)
 	{
@@ -406,7 +408,7 @@ BOOL CScene::OnCmdLeaveGameReq(NetPacket *pNetPack)
 
 	}
 
-	CPlayerObject *pPlayerObject = m_PlayerObjectMgr.GetPlayer(pBufferHelper->GetPacketHeader()->u64CharID);
+	CPlayerObject *pPlayerObject = m_PlayerObjectMgr.GetPlayer(bh.GetPacketHeader()->u64CharID);
 	if(pPlayerObject == NULL)
 	{
 		ASSERT_FAIELD;
@@ -589,14 +591,13 @@ BOOL CScene::SendUpdateObjectToMyself( CWorldObject *pWorldObj )
 
 BOOL CScene::OnCmdCharEnterSceneReq(NetPacket *pNetPack)
 {
-	CHECK_AND_RETURN_ASSERT(pBufferHelper, TRUE);
-
 	StSvrEnterSceneReq SvrEnterSceneReq;
-	pBufferHelper->Read(SvrEnterSceneReq);
+	CBufferHelper bh(FALSE, pNetPack->m_pDataBuffer);
+	bh.Read(SvrEnterSceneReq);
 
 	CPlayerObject *pPlayerObject = new CPlayerObject;
 
-	pPlayerObject->LoadFromDBPacket(pBufferHelper);
+	pPlayerObject->LoadFromDBPacket(&bh);
 
 	pPlayerObject->SetConnectID(SvrEnterSceneReq.dwProxySvrID);
 

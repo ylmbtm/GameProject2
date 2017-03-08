@@ -17,6 +17,10 @@ public:
 
 	BOOL Uninit();
 
+	BOOL DispatchPacket(NetPacket *pNetPacket);
+
+	BOOL OnUpdate( UINT32 dwTick );
+
 	//*********************消息处理定义开始******************************
 public:
 	BOOL OnCmdDBNewAccountReq(NetPacket *pPacket);

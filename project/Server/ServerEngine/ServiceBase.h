@@ -9,19 +9,23 @@
 
 struct NetPacket
 {
-	NetPacket( CConnection *pConnect = NULL, IDataBuffer *pBuffer = NULL)
+	NetPacket( CConnection *pConnect = NULL, IDataBuffer *pBuffer = NULL, UINT32 dwCmdID = 0 )
 	{
 		m_pConnect = pConnect;
 
 		m_pDataBuffer = pBuffer;
+
+		m_dwCmdID = dwCmdID;
 	}
 
 	CConnection *m_pConnect;
 
 	IDataBuffer *m_pDataBuffer;
+
+	UINT32       m_dwCmdID;
 };
 
-class ServiceBase : public IDataHandler, public CEventFuncManager
+class ServiceBase : public IDataHandler//, public CEventFuncManager
 {
 public:
 	ServiceBase(void);
@@ -29,7 +33,7 @@ public:
 public:
 	static ServiceBase* GetInstancePtr();
 	
-    BOOL            StartNetwork(UINT16 nPortNum, UINT32 nMaxConn);
+    BOOL            StartNetwork(UINT16 nPortNum, UINT32 nMaxConn, IPacketDispatcher *pDispather);
 
     BOOL            StopNetwork();
 
@@ -52,6 +56,7 @@ public:
 
 	BOOL			Update();
 
+	IPacketDispatcher				  *m_pPacketDispatcher;
 	ArrayLockFreeQueue<NetPacket>      m_DataQueue;
 	ArrayLockFreeQueue<CConnection*>   m_NewConList;
 	ArrayLockFreeQueue<CConnection*>   m_CloseConList;

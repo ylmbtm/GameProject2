@@ -14,6 +14,7 @@ CGameService::CGameService(void)
 
 CGameService::~CGameService(void)
 {
+
 }
 
 CGameService* CGameService::GetInstancePtr()
@@ -27,7 +28,7 @@ BOOL CGameService::Init()
 {
 	CommonFunc::SetCurrentWorkPath("");
 
-	if(!CLog::GetInstancePtr()->StartLog("WorldServer"))
+	if(!CLog::GetInstancePtr()->StartLog("WorldServer", "log"))
 	{
 		ASSERT_FAIELD;
 		return FALSE;
@@ -42,7 +43,7 @@ BOOL CGameService::Init()
 
 	UINT16 nPort = CConfigFile::GetInstancePtr()->GetIntValue("world_svr_port");
 	INT32  nMaxConn = CConfigFile::GetInstancePtr()->GetIntValue("world_svr_max_con");
-	if(!ServiceBase::GetInstancePtr()->StartNetwork(nPort, nMaxConn))
+	if(!ServiceBase::GetInstancePtr()->StartNetwork(nPort, nMaxConn, this))
 	{
 		ASSERT_FAIELD;
 		CLog::GetInstancePtr()->AddLog("启动服务失败!");
@@ -64,24 +65,51 @@ BOOL CGameService::Init()
 	return TRUE;
 }
 
+BOOL CGameService::Uninit()
+{
+	return TRUE;
+}
+
 BOOL CGameService::Run()
 {
-    while(TRUE)
-    {
-        char sz[100];
-        gets(sz);
+	while(TRUE)
+	{
+		ServiceBase::GetInstancePtr()->Update();
 
-        if(strcmp(sz,"exit") == 0)
-        {
-            CGameService::GetInstancePtr()->StopNetwork();
-            break;
-        }
-    }
+		Sleep(1);
+	}
 
 	return TRUE;
 }
 
 BOOL CGameService::SendCmdToDBConnection(IDataBuffer *pBuffer)
 {
+	return TRUE;
+}
+
+
+BOOL CGameService::OnNewConnect(CConnection *pConn)
+{
+	CLog::GetInstancePtr()->AddLog("新连接来到!");
+	return TRUE;
+}
+
+BOOL CGameService::OnCloseConnect(CConnection *pConn)
+{
+	CLog::GetInstancePtr()->AddLog("断开连接!");
+	return TRUE;
+}
+
+BOOL CGameService::DispatchPacket(NetPacket *pNetPacket)
+{
+	switch(pNetPacket->m_dwCmdID)
+	{
+	default:
+		{
+			m_WorldCmdHandler.DispatchPacket(pNetPacket);
+		}
+		break;
+	}
+
 	return TRUE;
 }

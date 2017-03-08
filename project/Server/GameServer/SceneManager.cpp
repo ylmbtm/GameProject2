@@ -77,8 +77,7 @@ BOOL CSceneManager::DispatchPacket(NetPacket *pNetPack)
 		return FALSE;
 	}
 
-
-	switch(pPacketHeader->wCommandID)
+	switch(pNetPack->m_dwCmdID)
 	{
 	case CMD_SVR_CREATE_SCENE_REQ:
 		{
@@ -137,12 +136,13 @@ BOOL CSceneManager::OnUpdate( UINT32 dwTick )
 BOOL CSceneManager::OnCmdCreateSceneReq(NetPacket *pNetPack)
 {
 	StSvrCreateSceneReq CreateSceneReq;
-	pBufferHelper->Read(CreateSceneReq);
+	CBufferHelper bh(FALSE, pNetPack->m_pDataBuffer);
+	bh.Read(CreateSceneReq);
 
 	StSvrCreateSceneAck CreateSceneAck;
 	CreateSceneAck.dwCreateParam = CreateSceneReq.CreateParam;
 	CreateSceneAck.dwSceneID = CreateSceneReq.dwSceneID;
-	CreateSceneAck.dwServerID= CGameService::GetInstancePtr()->GetServerID();
+	CreateSceneAck.dwServerID = 1;
 
 	if (!CreateScene(CreateSceneReq.dwSceneID))
 	{
@@ -160,7 +160,7 @@ BOOL CSceneManager::OnCmdCreateSceneReq(NetPacket *pNetPack)
 	WriteHelper.Write(CreateSceneAck);
 	WriteHelper.EndWrite();
 
-	ServiceBase::GetInstancePtr()->SendCmdToConnection(u64ConnID, WriteHelper.GetDataBuffer());
+	ServiceBase::GetInstancePtr()->SendCmdToConnection(pNetPack->m_pConnect->GetConnectionID(), WriteHelper.GetDataBuffer());
 
 	return TRUE;
 }

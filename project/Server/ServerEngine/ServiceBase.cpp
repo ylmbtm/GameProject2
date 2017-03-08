@@ -14,7 +14,7 @@
 
 ServiceBase::ServiceBase(void)
 {
-	
+	m_pPacketDispatcher = NULL;
 }
 
 ServiceBase::~ServiceBase(void)
@@ -31,13 +31,22 @@ ServiceBase* ServiceBase::GetInstancePtr()
 
 BOOL ServiceBase::OnDataHandle(IDataBuffer *pDataBuffer , CConnection *pConnection)
 {
-	m_DataQueue.push(NetPacket(pConnection, pDataBuffer));
+	PacketHeader *pHeader = (PacketHeader *)pDataBuffer->GetBuffer();
+	m_DataQueue.push(NetPacket(pConnection, pDataBuffer,pHeader->wCommandID));
 	return TRUE;
 }
 
-BOOL ServiceBase::StartNetwork(UINT16 nPortNum, UINT32 nMaxConn)
+BOOL ServiceBase::StartNetwork(UINT16 nPortNum, UINT32 nMaxConn, IPacketDispatcher *pDispather)
 {
-	if(!CNetManager::GetInstancePtr()->Start(nPortNum, nMaxConn, this))
+	if (pDispather == NULL)
+	{
+		ASSERT_FAIELD;
+		return FALSE;
+	}
+
+	m_pPacketDispatcher = pDispather;
+
+	if (!CNetManager::GetInstancePtr()->Start(nPortNum, nMaxConn, this))
 	{
 		CLog::GetInstancePtr()->AddLog("启动网络层失败!");
 		return FALSE;
@@ -164,6 +173,39 @@ CConnection* ServiceBase::GetConnectionByID( UINT64 u64ConnID )
 	return CConnectionMgr::GetInstancePtr()->GetConnectionByConnID(u64ConnID);
 }
 
+// BOOL ServiceBase::Update()
+// {
+// 	NetPacket item;
+// 	//处理新连接的通知
+// 	CConnection *pConnection = NULL;
+// 	while(m_NewConList.pop(pConnection))
+// 	{
+// 		item.m_pDataBuffer = NULL;
+// 		item.m_pConnect = pConnection;
+// 		FireMessage(1, &item);
+// 	}
+// 
+// 	while(m_DataQueue.pop(item))
+// 	{
+// 		PacketHeader *pPacketHeader = (PacketHeader *)item.m_pDataBuffer->GetBuffer();
+// 
+// 		FireMessage(pPacketHeader->wCommandID, &item);
+// 	}
+// 
+// 	//处理断开的连接
+// 	while(m_CloseConList.pop(pConnection))
+// 	{
+// 		//发送通知
+// 		item.m_pDataBuffer = NULL;
+// 		item.m_pConnect = pConnection;
+// 		FireMessage(2, &item);
+// 		//发送通知
+// 		CConnectionMgr::GetInstancePtr()->DeleteConnection(pConnection);
+// 	}
+// 
+// 	return TRUE;
+// }
+
 BOOL ServiceBase::Update()
 {
 	NetPacket item;
@@ -173,14 +215,12 @@ BOOL ServiceBase::Update()
 	{
 		item.m_pDataBuffer = NULL;
 		item.m_pConnect = pConnection;
-		FireMessage(1, &item);
+		m_pPacketDispatcher->OnNewConnect(pConnection);
 	}
 
 	while(m_DataQueue.pop(item))
 	{
-		PacketHeader *pPacketHeader = (PacketHeader *)item.m_pDataBuffer->GetBuffer();
-
-		FireMessage(pPacketHeader->wCommandID, &item);
+		m_pPacketDispatcher->DispatchPacket(&item);
 	}
 
 	//处理断开的连接
@@ -189,7 +229,7 @@ BOOL ServiceBase::Update()
 		//发送通知
 		item.m_pDataBuffer = NULL;
 		item.m_pConnect = pConnection;
-		FireMessage(2, &item);
+		m_pPacketDispatcher->OnCloseConnect(pConnection);
 		//发送通知
 		CConnectionMgr::GetInstancePtr()->DeleteConnection(pConnection);
 	}

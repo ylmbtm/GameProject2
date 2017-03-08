@@ -12,7 +12,7 @@ public:
 
 	~CWorldCmdHandler();
 
-	BOOL OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper);
+	BOOL DispatchPacket(NetPacket *pNetPacket);
 
 	BOOL OnUpdate( UINT32 dwTick );
 
@@ -22,10 +22,10 @@ public:
 
 	//*********************消息处理定义开始******************************
 public:
-	BOOL OnCmdEnterGameReq( UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper);
-	BOOL OnCmdDBLoadCharAck(UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper);
-	BOOL OnCmdCreateSceneAck( UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper);
-	BOOL OnCmdLeaveGameReq(UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper);
+	BOOL OnCmdEnterGameReq(NetPacket *pNetPacket);
+	BOOL OnCmdDBLoadCharAck(NetPacket *pNetPacket);
+	BOOL OnCmdCreateSceneAck(NetPacket *pNetPacket);
+	BOOL OnCmdLeaveGameReq(NetPacket *pNetPacket);
 
 	//*********************消息处理定义结束******************************
 

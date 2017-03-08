@@ -41,9 +41,9 @@ BOOL CWorldCmdHandler::Uninit()
 	return TRUE;
 }
 
-BOOL CWorldCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper)
+BOOL CWorldCmdHandler::DispatchPacket(NetPacket *pNetPacket)
 {
-	switch(wCommandID)
+	switch(pNetPacket->m_dwCmdID)
 	{
 		PROCESS_COMMAND_ITEM(CMD_CHAR_ENTER_GAME_REQ,	OnCmdEnterGameReq);
 		PROCESS_COMMAND_ITEM(CMD_DB_LOAD_CHAR_ACK,		OnCmdDBLoadCharAck);
@@ -66,14 +66,15 @@ BOOL CWorldCmdHandler::OnUpdate( UINT32 dwTick )
 	return TRUE;
 }
 
-BOOL CWorldCmdHandler::OnCmdEnterGameReq( UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper )
+BOOL CWorldCmdHandler::OnCmdEnterGameReq(NetPacket *pNetPacket)
 {
 	StCharEnterGameReq CharEnterGameReq;
-	pBufferHelper->Read(CharEnterGameReq);
+	CBufferHelper bh(FALSE, pNetPacket->m_pDataBuffer);
+	bh.Read(CharEnterGameReq);
 
 	StDBLoadCharInfoReq DBLoadCharInfoReq;
 	DBLoadCharInfoReq.u64CharID		= CharEnterGameReq.u64CharID;
-	DBLoadCharInfoReq.dwProxySvrID	= (UINT32)u64ConnID;
+	DBLoadCharInfoReq.dwProxySvrID	= (UINT32)pNetPacket->m_pConnect->GetConnectionID();
 
 	CBufferHelper WriteHelper(TRUE, 1024);
 	WriteHelper.BeginWrite(CMD_DB_LOAD_CHAR_REQ, 0, 0);
@@ -88,11 +89,11 @@ BOOL CWorldCmdHandler::OnCmdEnterGameReq( UINT16 wCommandID, UINT64 u64ConnID, C
 	return TRUE;
 }
 
-BOOL CWorldCmdHandler::OnCmdLeaveGameReq( UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper )
+BOOL CWorldCmdHandler::OnCmdLeaveGameReq(NetPacket *pNetPacket)
 {
 	StCharLeaveGameReq CharLeaveGameReq;
-
-	pBufferHelper->Read(CharLeaveGameReq);
+	CBufferHelper bh(FALSE, pNetPacket->m_pDataBuffer);
+	bh.Read(CharLeaveGameReq);
 
 	if(CharLeaveGameReq.dwLeaveReason == LGR_Disconnect)
 	{
@@ -103,7 +104,7 @@ BOOL CWorldCmdHandler::OnCmdLeaveGameReq( UINT16 wCommandID, UINT64 u64ConnID, C
 
 	}
 
-	CPlayerObject *pPlayerObject = m_PlayerObjectMgr.GetPlayer(pBufferHelper->GetPacketHeader()->u64CharID);
+	CPlayerObject *pPlayerObject = m_PlayerObjectMgr.GetPlayer(bh.GetPacketHeader()->u64CharID);
 	if(pPlayerObject == NULL)
 	{
 		ASSERT_FAIELD;
@@ -116,15 +117,16 @@ BOOL CWorldCmdHandler::OnCmdLeaveGameReq( UINT16 wCommandID, UINT64 u64ConnID, C
 }
 
 
-BOOL CWorldCmdHandler::OnCmdDBLoadCharAck( UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper )
+BOOL CWorldCmdHandler::OnCmdDBLoadCharAck(NetPacket *pNetPacket)
 {
 	StDBLoadCharInfoAck DBLoadCharInfoAck;
-	pBufferHelper->Read(DBLoadCharInfoAck);
+	CBufferHelper bh(FALSE, pNetPacket->m_pDataBuffer);
+	bh.Read(DBLoadCharInfoAck);
 
 	CPlayerObject *pPlayerObject = m_PlayerObjectMgr.CreatePlayerByID(DBLoadCharInfoAck.u64CharID);
 	CHECK_AND_RETURN_ASSERT(pPlayerObject, TRUE);
 
-	if(!pPlayerObject->LoadFromDBPacket(pBufferHelper))
+	if(!pPlayerObject->LoadFromDBPacket(&bh))
 	{
 		ASSERT_FAIELD;
 		return TRUE;
@@ -156,10 +158,11 @@ BOOL CWorldCmdHandler::OnCmdDBLoadCharAck( UINT16 wCommandID, UINT64 u64ConnID, 
 	return TRUE;
 }
 
-BOOL CWorldCmdHandler::OnCmdCreateSceneAck( UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper )
+BOOL CWorldCmdHandler::OnCmdCreateSceneAck(NetPacket *pNetPacket)
 {
 	StSvrCreateSceneAck CreateSceneAck;
-	pBufferHelper->Read(CreateSceneAck);
+	CBufferHelper bh(FALSE, pNetPacket->m_pDataBuffer);
+	bh.Read(CreateSceneAck);
 
 	if(CreateSceneAck.dwAckCode == E_SUCCESSED)
 	{

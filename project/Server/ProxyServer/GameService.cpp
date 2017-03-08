@@ -46,7 +46,7 @@ BOOL CGameService::Init()
 
 	UINT16 nPort = CConfigFile::GetInstancePtr()->GetIntValue("proxy_svr_port");
 	INT32  nMaxConn = CConfigFile::GetInstancePtr()->GetIntValue("proxy_svr_max_con");
-	if(!ServiceBase::GetInstancePtr()->StartNetwork(nPort, nMaxConn))
+	if(!ServiceBase::GetInstancePtr()->StartNetwork(nPort, nMaxConn,this))
 	{
 		ASSERT_FAIELD;
 		CLog::GetInstancePtr()->AddLog("启动服务失败!");
@@ -63,15 +63,29 @@ BOOL CGameService::Init()
 	return TRUE;
 }
 
-BOOL CGameService::OnNewConnection(NetPacket *pPacket)
+BOOL CGameService::OnNewConnect(CConnection *pConn)
 {
 	CLog::GetInstancePtr()->AddLog("新连接来到!");
 	return TRUE;
 }
 
-BOOL CGameService::OnCloseConnection(NetPacket *pPacket)
+BOOL CGameService::OnCloseConnect(CConnection *pConn)
 {
 	CLog::GetInstancePtr()->AddLog("断开连接!");
+	return TRUE;
+}
+
+BOOL CGameService::DispatchPacket(NetPacket *pNetPacket)
+{
+	switch(pNetPacket->m_dwCmdID)
+	{
+	default:
+		{
+
+		}
+		break;
+	}
+
 	return TRUE;
 }
 

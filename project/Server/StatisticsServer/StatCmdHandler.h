@@ -10,10 +10,11 @@ public:
 
 	~CStatCmdHandler();
 
-	BOOL Init(UINT32 dwReserved);
+	BOOL		Init(UINT32 dwReserved);
 
-	BOOL Uninit();
+	BOOL		Uninit();
 
+	BOOL		DispatchPacket( NetPacket *pNetPacket);
 	//*********************消息处理定义开始******************************
 public:
 	BOOL OnCmdSvrRunningStateReq(NetPacket *pPacket);

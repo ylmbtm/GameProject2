@@ -2,7 +2,6 @@
 #include "CommandHandler.h"
 #include "PacketDef/ServerPacket.h"
 #include "DataBuffer/BufferHelper.h"
-#include "ConnectionType.h"
 #include "PacketDef/ClientPacket.h"
 #include "resource.h"
 #include "TestClientDlg.h"
@@ -193,7 +192,7 @@ BOOL CClientCmdHandler::SendNewAccountReq( LPCTSTR szAccountName, LPCTSTR szPass
 
 	CBufferHelper WriteHelper(TRUE, m_ClientConnector.GetWriteBuffer());
 
-	WriteHelper.BeginWrite(CMD_CHAR_NEW_ACCOUNT_REQ, 0, 0, 0);
+	WriteHelper.BeginWrite(CMD_CHAR_NEW_ACCOUNT_REQ, 0, 0);
 
 	WriteHelper.Write(CharNewAccountReq);
 
@@ -241,7 +240,7 @@ BOOL CClientCmdHandler::SendPickCharReq( UINT64 u64CharID )
 
 	CHECK_PAYER_ID(u64CharID);
 
-	WriteHelper.BeginWrite(CMD_CHAR_PICK_CHAR_REQ, 0, 0, 0);
+	WriteHelper.BeginWrite(CMD_CHAR_PICK_CHAR_REQ, 0, 0);
 
 	WriteHelper.Write(CharPickCharReq);
 
@@ -277,7 +276,7 @@ BOOL CClientCmdHandler::SendNewCharReq( UINT32 dwAccountID , LPCTSTR szCharName,
 	strncpy(CharNewCharReq.szCharName, szCharName, 32);
 	CBufferHelper WriteHelper(TRUE, m_ClientConnector.GetWriteBuffer());
 
-	WriteHelper.BeginWrite(CMD_CHAR_NEW_CHAR_REQ, 0, 0, 0);
+	WriteHelper.BeginWrite(CMD_CHAR_NEW_CHAR_REQ, 0, 0);
 
 	WriteHelper.Write(CharNewCharReq);
 
@@ -313,7 +312,7 @@ BOOL CClientCmdHandler::SendDelCharReq( UINT32 dwAccountID,UINT64 dwCharID )
 
 	CHECK_PAYER_ID(dwCharID);
 
-	WriteHelper.BeginWrite(CMD_CHAR_DEL_CHAR_REQ, 0, 0, 0);
+	WriteHelper.BeginWrite(CMD_CHAR_DEL_CHAR_REQ, 0, 0);
 
 	WriteHelper.Write(CharDelCharReq);
 
@@ -356,7 +355,7 @@ BOOL CClientCmdHandler::SendLeaveGameReq( UINT64 u64CharID )
 
 	CBufferHelper WriteHelper(TRUE, m_ClientConnector.GetWriteBuffer());
 
-	WriteHelper.BeginWrite(CMD_CHAR_LEAVE_GAME_REQ, CMDH_SENCE, 0, u64CharID);
+	WriteHelper.BeginWrite(CMD_CHAR_LEAVE_GAME_REQ, 0, u64CharID);
 
 	WriteHelper.Write(CharLeaveGameReq);
 
@@ -377,7 +376,7 @@ BOOL CClientCmdHandler::SendMoveReq( FLOAT x, FLOAT y, FLOAT z, UINT16 nDir)
 
 	CBufferHelper WriteHelper(TRUE, m_ClientConnector.GetWriteBuffer());
 
-	WriteHelper.BeginWrite(CMD_CHAR_MOVE_REQ, CMDH_SENCE, 12, m_HostPlayer.GetObjectID());
+	WriteHelper.BeginWrite(CMD_CHAR_MOVE_REQ, 12, m_HostPlayer.GetObjectID());
 
 	WriteHelper.Write(_MoveGs);
 

@@ -35,13 +35,7 @@ BOOL CDBCmdHandler::Init(UINT32 dwReserved)
 		return FALSE;
 	}
 
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_NEW_ACCOUNT_REQ,	&CDBCmdHandler::OnCmdDBNewAccountReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_NEW_CHAR_REQ,		&CDBCmdHandler::OnCmdDBNewCharReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_DEL_CHAR_REQ,		&CDBCmdHandler::OnCmdDBDelCharReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_PICK_CHAR_REQ,		&CDBCmdHandler::OnCmdDBPickCharReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_LOGIN_REQ,			&CDBCmdHandler::OnCmdDBLoginReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_LOAD_CHAR_REQ,		&CDBCmdHandler::OnCmdDBLoadCharReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_SAVE_CHAR_REQ,		&CDBCmdHandler::OnCmdDBSaveCharReq, this);
+	
 
 	return TRUE;
 }
@@ -53,6 +47,33 @@ BOOL CDBCmdHandler::Uninit()
 	return TRUE;
 }
 
+
+BOOL CDBCmdHandler::DispatchPacket(NetPacket *pNetPacket)
+{
+	switch(pNetPacket->m_dwCmdID)
+	{
+		PROCESS_COMMAND_ITEM(CMD_DB_NEW_ACCOUNT_REQ,	OnCmdDBNewAccountReq);
+		PROCESS_COMMAND_ITEM(CMD_DB_NEW_CHAR_REQ,		OnCmdDBNewCharReq);
+		PROCESS_COMMAND_ITEM(CMD_DB_DEL_CHAR_REQ,		OnCmdDBDelCharReq);
+		PROCESS_COMMAND_ITEM(CMD_DB_PICK_CHAR_REQ,		OnCmdDBPickCharReq);
+		PROCESS_COMMAND_ITEM(CMD_DB_LOGIN_REQ,			OnCmdDBLoginReq);
+		PROCESS_COMMAND_ITEM(CMD_DB_LOAD_CHAR_REQ,		OnCmdDBLoadCharReq);
+		PROCESS_COMMAND_ITEM(CMD_DB_SAVE_CHAR_REQ,		OnCmdDBSaveCharReq);
+	default:
+		{
+
+		}
+		break;
+	}
+
+
+	return TRUE;
+}
+
+BOOL CDBCmdHandler::OnUpdate(UINT32 dwTick)
+{
+	return TRUE;
+}
 
 BOOL CDBCmdHandler::OnCmdDBNewAccountReq(NetPacket *pPacket)
 {

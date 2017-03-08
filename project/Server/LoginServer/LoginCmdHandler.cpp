@@ -30,17 +30,7 @@ CLoginCmdHandler::~CLoginCmdHandler()
 
 BOOL CLoginCmdHandler::Init()
 {
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_CHAR_NEW_ACCOUNT_REQ, &CLoginCmdHandler::OnCmdNewAccountReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_CHAR_NEW_CHAR_REQ, &CLoginCmdHandler::OnCmdNewCharReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_CHAR_DEL_CHAR_REQ, &CLoginCmdHandler::OnCmdDelCharReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_CHAR_PICK_CHAR_REQ, &CLoginCmdHandler::OnCmdPickCharReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_CHAR_LOGIN_REQ, &CLoginCmdHandler::OnCmdLoginReq, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_NEW_ACCOUNT_ACK, &CLoginCmdHandler::OnCmdDBNewAccountAck, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_NEW_CHAR_ACK, &CLoginCmdHandler::OnCmdDBNewCharAck, this);
-
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_DEL_CHAR_ACK, &CLoginCmdHandler::OnCmdDBDelCharAck, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_PICK_CHAR_ACK, &CLoginCmdHandler::OnCmdDBPickCharAck, this);
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_DB_LOGIN_ACK, &CLoginCmdHandler::OnCmdDBLoginAck, this);
+	
 
 	return TRUE;
 }
@@ -53,6 +43,30 @@ BOOL CLoginCmdHandler::Uninit()
 }
 
 
+
+BOOL CLoginCmdHandler::DispatchPacket(NetPacket *pNetPacket)
+{
+	switch(pNetPacket->m_dwCmdID)
+	{
+		PROCESS_COMMAND_ITEM(CMD_CHAR_NEW_ACCOUNT_REQ,	OnCmdNewAccountReq);
+		PROCESS_COMMAND_ITEM(CMD_CHAR_NEW_CHAR_REQ,		OnCmdNewCharReq);
+		PROCESS_COMMAND_ITEM(CMD_CHAR_DEL_CHAR_REQ,		OnCmdDelCharReq);
+		PROCESS_COMMAND_ITEM(CMD_CHAR_PICK_CHAR_REQ,	OnCmdPickCharReq);
+		PROCESS_COMMAND_ITEM(CMD_CHAR_LOGIN_REQ,		OnCmdLoginReq);
+		PROCESS_COMMAND_ITEM(CMD_DB_NEW_ACCOUNT_ACK,	OnCmdDBNewAccountAck);
+		PROCESS_COMMAND_ITEM(CMD_DB_NEW_CHAR_ACK,		OnCmdDBNewCharAck);
+		PROCESS_COMMAND_ITEM(CMD_DB_DEL_CHAR_ACK,		OnCmdDBDelCharAck);
+		PROCESS_COMMAND_ITEM(CMD_DB_PICK_CHAR_ACK,		OnCmdDBPickCharAck);
+		PROCESS_COMMAND_ITEM(CMD_DB_LOGIN_ACK,			OnCmdDBLoginAck);
+	default:
+		{
+
+		}
+		break;
+	}
+
+	return TRUE;
+}
 
 BOOL CLoginCmdHandler::OnCmdLoginReq(NetPacket *pPacket)
 {
@@ -68,7 +82,6 @@ BOOL CLoginCmdHandler::OnCmdLoginReq(NetPacket *pPacket)
 	WriteHelper.BeginWrite(CMD_DB_LOGIN_REQ, 0, 0);
 	WriteHelper.Write(DBCharLoginReq);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBCharLoginReq)+22));
 	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
 	
 	return TRUE;

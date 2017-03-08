@@ -110,7 +110,7 @@ BOOL ClassName##::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBufferHe
 #define PROCESS_COMMAND_ITEM(wCommandID, Func) \
 		case wCommandID:{\
 		CLog::GetInstancePtr()->AddLog("---Receive Message:[%s]----", #wCommandID);\
-		Func(pNetPack);}break;
+		Func(pNetPacket);}break;
 
 #define END_PROCESS_COMMAND \
 		default: \

@@ -2,7 +2,6 @@
 #include "ClientConnector.h"
 #include "CommandDef.h"
 #include "DataBuffer\BufferHelper.h"
-#include "ConnectionType.h"
 #include "PacketDef\ClientPacket.h"
 #include "Error.h"
 #include "ObjectID.h"
@@ -53,6 +52,16 @@ BOOL CClientConnector::SetClientID( UINT64 u64ClientID )
 	m_u64ClientID = u64ClientID;
 
 	return TRUE;
+}
+
+template <typename T>
+BOOL CClientConnector::SendData(UINT16 dwMsgID, T &msgData, UINT32 dwSceneID, UINT64 u64CharID)
+{
+	WriteHelper.BeginWrite(dwMsgID, dwSceneID, u64CharID);
+	WriteHelper.Write(msgData);
+	WriteHelper.EndWrite();
+
+	SendData(m_WriteBuffer.GetData(), m_WriteBuffer.GetDataLenth());
 }
 
 BOOL CClientConnector::SendData( char *pData, INT32 dwLen )
@@ -114,22 +123,10 @@ BOOL CClientConnector::Login(const char *pszAccountName, const char *pszPassword
 		}
 	}
 
-	StConnectNotify ConnectNotify;
-	ConnectNotify.btConType = TYPE_CLT_PLAYER;
-	ConnectNotify.u64ConnID = 0;
-	CBufferHelper WriteHelper(TRUE, &m_WriteBuffer);
-	WriteHelper.BeginWrite(CMD_CONNECT_NOTIFY, CMDH_SVR_CON, 0, 0);
-	WriteHelper.Write(ConnectNotify);
-	WriteHelper.EndWrite();
-	SendData(m_WriteBuffer.GetData(), m_WriteBuffer.GetDataLenth());
-
 	StCharLoginReq CharLoginReq;
 	strncpy(CharLoginReq.szAccountName, pszAccountName, 32);
 	strncpy(CharLoginReq.szPassword, pszPassword, 32);
-	WriteHelper.BeginWrite(CMD_CHAR_LOGIN_REQ, 0, 0, 0);
-	WriteHelper.Write(CharLoginReq);
-	WriteHelper.EndWrite();
-	SendData(m_WriteBuffer.GetData(), m_WriteBuffer.GetDataLenth());
+	SendData(CMD_CHAR_LOGIN_REQ, CharLoginReq, 0, 0);
 
 	return TRUE;
 }
@@ -193,8 +190,6 @@ BOOL CClientConnector::OnCommandHandle( UINT16 wCommandID, UINT64 u64ConnID, CBu
 {
 	switch(wCommandID)
 	{
-		PROCESS_COMMAND_ITEM_T(CMD_CONNECT_NOTIFY,		OnCmdConnectNotify);
-
 		PROCESS_COMMAND_ITEM_T(CMD_CHAR_PICK_CHAR_ACK,	OnCmdPickCharAck);
 
 		PROCESS_COMMAND_ITEM_T(CMD_CHAR_HEART_BEAT_ACK,	OnCmdHearBeatAck);
@@ -220,29 +215,6 @@ BOOL CClientConnector::OnCommandHandle( UINT16 wCommandID, UINT64 u64ConnID, CBu
 
 BOOL CClientConnector::OnCmdConnectNotify(UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper)
 {
-	StConnectNotify ConnectNotify;
-
-	pBufferHelper->Read(ConnectNotify);
-
-	UINT32 ConType = ConnectNotify.btConType;
-
-	if(ConType == TYPE_SVR_PROXY)
-	{
-		ConnectNotify.btConType =  TYPE_CLT_PLAYER;
-
-		ConnectNotify.u64ConnID = m_u64ClientID;
-
-		CBufferHelper WriteHelper(TRUE, &m_WriteBuffer);
-
-		WriteHelper.BeginWrite(CMD_CONNECT_NOTIFY, CMDH_SVR_CON, 0, 0);
-
-		WriteHelper.Write(ConnectNotify);
-
-		WriteHelper.EndWrite();
-
-		SendData(m_WriteBuffer.GetData(), m_WriteBuffer.GetDataLenth());
-
-
 		StCharEnterGameReq CharEnterGameReq;
 
 		CharEnterGameReq.u64CharID = m_u64ClientID;
@@ -251,19 +223,16 @@ BOOL CClientConnector::OnCmdConnectNotify(UINT16 wCommandID, UINT64 u64ConnID, C
 
 		CHECK_PAYER_ID(m_u64ClientID);
 
-		WriteHelper.BeginWrite(CMD_CHAR_ENTER_GAME_REQ, CMDH_SENCE, 0, CharEnterGameReq.u64CharID);
+		CBufferHelper WriteHelper(TRUE, 1024);
+
+		WriteHelper.BeginWrite(CMD_CHAR_ENTER_GAME_REQ,0,  CharEnterGameReq.u64CharID);
 
 		WriteHelper.Write(CharEnterGameReq);
 
 		WriteHelper.EndWrite();
 
 		SendData(m_WriteBuffer.GetData(),m_WriteBuffer.GetDataLenth());
-	}
-	else if(ConType == TYPE_SVR_LOGIN)
-	{
-		SetConnectState(Succ_Connect);
-	}
-
+	
 	return 0;
 }
 
@@ -408,12 +377,12 @@ BOOL CClientConnector::ReceiveData()
 
 BOOL CClientConnector::ProcessData()
 {
-	if(m_nDataLen < sizeof(TransferHeader))
+	if(m_nDataLen < sizeof(PacketHeader))
 	{
 		return FALSE;
 	}
 
-	TransferHeader *pHeader = (TransferHeader *)m_DataBuffer;
+	PacketHeader *pHeader = (PacketHeader *)m_DataBuffer;
 	if(pHeader->CheckCode != 0xff)
 	{
 		ASSERT_FAIELD;
@@ -463,16 +432,9 @@ BOOL CClientConnector::ProcessData()
 		return FALSE;
 	}
 
-	CommandHeader *pCommandHeader = BufferReader.GetCommandHeader();
-	if(pCommandHeader == NULL)
+	if((pHeader->wCommandID > CMD_BEGIN_TAG)&&(pHeader->wCommandID < CMD_END_TAG))
 	{
-		ASSERT_FAIELD;
-		return FALSE;
-	}
-
-	if((pCommandHeader->wCommandID > CMD_BEGIN_TAG)&&(pCommandHeader->wCommandID < CMD_END_TAG))
-	{
-		OnCommandHandle(pCommandHeader->wCommandID, 0, &BufferReader);
+		OnCommandHandle(pHeader->wCommandID, 0, &BufferReader);
 	}
 	else
 	{

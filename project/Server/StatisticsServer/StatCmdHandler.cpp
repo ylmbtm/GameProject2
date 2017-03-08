@@ -27,18 +27,27 @@ CStatCmdHandler::~CStatCmdHandler()
 
 BOOL CStatCmdHandler::Init(UINT32 dwReserved)
 {
-	ServiceBase::GetInstancePtr()->RegisterMessageHandle(CMD_CHAR_ENTER_GAME_REQ, &CStatCmdHandler::OnCmdSvrRunningStateReq, this);
-
-
-
 	return TRUE;
 }
 
 BOOL CStatCmdHandler::Uninit()
 {
+	return TRUE;
+}
 
 
 
+BOOL CStatCmdHandler::DispatchPacket(NetPacket *pNetPacket)
+{
+	switch(pNetPacket->m_dwCmdID)
+	{
+		PROCESS_COMMAND_ITEM(CMD_CHAR_ENTER_GAME_REQ,		OnCmdSvrRunningStateReq);
+	default:
+		{
+			
+		}
+		break;
+	}
 
 	return TRUE;
 }
