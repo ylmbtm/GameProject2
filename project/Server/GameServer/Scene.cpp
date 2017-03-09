@@ -578,13 +578,13 @@ BOOL CScene::SendUpdateObjectToMyself( CWorldObject *pWorldObj )
 
 	//先把玩家的变化包组装好
 	CBufferHelper WriteHelper(TRUE, 1024);
-	WriteHelper.BeginWrite(CMD_CHAR_UPDATE_MYSELF, 0, 0);
+	WriteHelper.BeginWrite(CMD_CHAR_UPDATE_MYSELF, GetSceneID(), pPlayerObject->GetObjectID());
 	WriteHelper.WriteCheckBufferCode();
 	pWorldObj->WriteToBuffer(&WriteHelper, UPDATE_FLAG_CHANGE, UPDATE_TO_MYSELF);
 	WriteHelper.WriteCheckBufferCode();
 	WriteHelper.EndWrite();
 
-	ServiceBase::GetInstancePtr()->SendCmdToConnection(pPlayerObject->GetConnectID(), pPlayerObject->GetObjectID(), 0, &m_WriteBuffer);
+	ServiceBase::GetInstancePtr()->SendCmdToConnection(pPlayerObject->GetConnectID(), &m_WriteBuffer);
 
 	return TRUE;
 }

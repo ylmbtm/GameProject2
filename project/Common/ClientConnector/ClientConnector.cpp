@@ -57,11 +57,13 @@ BOOL CClientConnector::SetClientID( UINT64 u64ClientID )
 template <typename T>
 BOOL CClientConnector::SendData(UINT16 dwMsgID, T &msgData, UINT32 dwSceneID, UINT64 u64CharID)
 {
+	CBufferHelper WriteHelper(TRUE, &m_WriteBuffer);
 	WriteHelper.BeginWrite(dwMsgID, dwSceneID, u64CharID);
 	WriteHelper.Write(msgData);
 	WriteHelper.EndWrite();
 
-	SendData(m_WriteBuffer.GetData(), m_WriteBuffer.GetDataLenth());
+	SendData(m_WriteBuffer.GetBuffer(), m_WriteBuffer.GetTotalLenth());
+	return TRUE;
 }
 
 BOOL CClientConnector::SendData( char *pData, INT32 dwLen )
@@ -231,7 +233,7 @@ BOOL CClientConnector::OnCmdConnectNotify(UINT16 wCommandID, UINT64 u64ConnID, C
 
 		WriteHelper.EndWrite();
 
-		SendData(m_WriteBuffer.GetData(),m_WriteBuffer.GetDataLenth());
+		SendData(m_WriteBuffer.GetBuffer(),m_WriteBuffer.GetTotalLenth());
 	
 	return 0;
 }
@@ -406,9 +408,9 @@ BOOL CClientConnector::ProcessData()
 		ASSERT_FAIELD;
 	}
 
-	memcpy(m_ReadBuffer.GetData(), m_DataBuffer, pHeader->dwSize);
+	memcpy(m_ReadBuffer.GetBuffer(), m_DataBuffer, pHeader->dwSize);
 
-	m_ReadBuffer.SetDataLenth(pHeader->dwSize);
+	m_ReadBuffer.SetTotalLenth(pHeader->dwSize);
 
 	m_nDataLen -= pHeader->dwSize;
 

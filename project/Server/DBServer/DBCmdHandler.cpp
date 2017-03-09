@@ -128,7 +128,7 @@ BOOL CDBCmdHandler::OnCmdDBNewCharReq(NetPacket *pPacket)
 	WriteHelper.BeginWrite(CMD_DB_NEW_CHAR_ACK, 0, 0);
 	WriteHelper.Write(DBCharNewCharAck);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBCharNewCharAck)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBCharNewCharAck)+22));
 	ServiceBase::GetInstancePtr()->SendCmdToConnection(pPacket->m_pConnect->GetConnectionID(), WriteHelper.GetDataBuffer());
 
 	return TRUE;
@@ -154,7 +154,7 @@ BOOL CDBCmdHandler::OnCmdDBPickCharReq(NetPacket *pPacket)
 	WriteHelper.BeginWrite(CMD_DB_PICK_CHAR_ACK, 0, 0);
 	WriteHelper.Write(DBCharPickCharAck);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBCharPickCharAck)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBCharPickCharAck)+22));
 	ServiceBase::GetInstancePtr()->SendCmdToConnection(pPacket->m_pConnect->GetConnectionID(), WriteHelper.GetDataBuffer());
 
 	return TRUE;

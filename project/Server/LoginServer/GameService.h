@@ -30,6 +30,10 @@ public:
 
 public:
 	CLoginCmdHandler	m_LoginCmdHandler;
+
+
+	CConnection        *m_pStatSvrConn;
+	CConnection        *m_pDbSvrConn;
 };
 
 #endif

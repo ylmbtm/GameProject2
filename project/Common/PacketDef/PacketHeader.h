@@ -7,9 +7,9 @@
 struct PacketHeader
 {
 	UINT8	 CheckCode;
-	UINT16   dwSize;
 	UINT16   wCommandID;
-	UINT32   dwPacketNo;	//包序号
+	UINT32   dwSize;
+	UINT32   dwPacketNo;	//包序号 = wCommandID^dwSize+1;
 	UINT32   dwSceneID;
 	UINT64   u64CharID;
 };

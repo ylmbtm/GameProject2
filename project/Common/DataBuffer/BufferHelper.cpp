@@ -9,6 +9,11 @@ CBufferHelper::CBufferHelper(BOOL bWrite, IDataBuffer *pDataBuffer)
 	m_bWriting = bWrite;
 
 	m_pDataBuffer = pDataBuffer;
+
+	if(!bWrite)
+	{
+		BeginRead();
+	}
 }
 
 CBufferHelper::CBufferHelper(BOOL bWrite, UINT32 dwBuffSize)
@@ -40,7 +45,7 @@ BOOL CBufferHelper::BeginWrite(UINT16 wCommandID, UINT16 dwSceneID, UINT64 u64Ch
 
 	m_dwCurPos	  = sizeof(PacketHeader);
 
-	m_pDataBuffer->SetDataLenth(m_dwCurPos);
+	m_pDataBuffer->SetTotalLenth(m_dwCurPos);
 
 	return TRUE;
 }
@@ -51,7 +56,7 @@ BOOL CBufferHelper::EndWrite()
 
 	GetPacketHeader()->dwSize = m_dwCurPos;
 
-	m_pDataBuffer->SetDataLenth(m_dwCurPos);
+	m_pDataBuffer->SetTotalLenth(m_dwCurPos);
 
 	return TRUE;
 }
@@ -67,7 +72,7 @@ BOOL CBufferHelper::BeginRead()
 
 	m_dwCurPos	  = sizeof(PacketHeader);
 
-	m_pDataBuffer->SetDataLenth(GetPacketHeader()->dwSize);
+	m_pDataBuffer->SetTotalLenth(GetPacketHeader()->dwSize);
 
 	if(GetPacketHeader()->CheckCode != 0xff)
 	{
@@ -97,7 +102,7 @@ UINT32 CBufferHelper::Read( CHAR *pszValue )
 
 	Read(wLen);
 
-	memcpy(pszValue, m_pDataBuffer->GetData() + m_dwCurPos, wLen);
+	memcpy(pszValue, m_pDataBuffer->GetBuffer() + m_dwCurPos, wLen);
 
 	pszValue[wLen] = 0;
 
@@ -110,7 +115,7 @@ UINT32 CBufferHelper::Read( BYTE *pData, UINT32 dwBytes )
 {
 	ASSERT(pData != NULL);
 
-	memcpy(pData, m_pDataBuffer->GetData() + m_dwCurPos, dwBytes);
+	memcpy(pData, m_pDataBuffer->GetBuffer() + m_dwCurPos, dwBytes);
 
 	m_dwCurPos += dwBytes;
 
@@ -139,7 +144,7 @@ UINT32 CBufferHelper::Write( BYTE *pData, UINT32 dwBytes )
 {
 	ASSERT(pData != NULL);
 
-	memcpy(m_pDataBuffer->GetData() + m_dwCurPos, pData,  dwBytes);
+	memcpy(m_pDataBuffer->GetBuffer() + m_dwCurPos, pData,  dwBytes);
 
 	m_dwCurPos += dwBytes;
 
@@ -156,7 +161,7 @@ UINT32 CBufferHelper::Write( const CHAR *pszValue )
 
 	Write(wLen);
 
-	memcpy(m_pDataBuffer->GetData() + m_dwCurPos, pszValue,  wLen);
+	memcpy(m_pDataBuffer->GetBuffer() + m_dwCurPos, pszValue,  wLen);
 
 	m_dwCurPos += wLen;
 
@@ -176,7 +181,7 @@ UINT32 CBufferHelper::Write( CHAR *pszValue )
 
 	Write(wLen);
 
-	memcpy(m_pDataBuffer->GetData() + m_dwCurPos, pszValue,  wLen);
+	memcpy(m_pDataBuffer->GetBuffer() + m_dwCurPos, pszValue,  wLen);
 
 	m_dwCurPos += wLen;
 
@@ -192,7 +197,7 @@ IDataBuffer* CBufferHelper::GetDataBuffer()
 
 UINT8* CBufferHelper::GetCurrentPoint()
 {
-	return (UINT8*)(m_pDataBuffer->GetData() + m_dwCurPos);
+	return (UINT8*)(m_pDataBuffer->GetBuffer() + m_dwCurPos);
 }
 
 UINT32 CBufferHelper::WriteCheckBufferCode()

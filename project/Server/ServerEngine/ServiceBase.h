@@ -43,7 +43,7 @@ public:
 
 	BOOL			OnNewConnect(CConnection *pConnection);
 public:
-	BOOL			ConnectToOtherSvr(std::string strIpAddr, UINT16 sPort);
+	CConnection*	ConnectToOtherSvr(std::string strIpAddr, UINT16 sPort);
 
 	BOOL			SendCmdToConnection(UINT64 u64ConnID, IDataBuffer *pSrcBuffer);
 

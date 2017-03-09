@@ -13,7 +13,6 @@
 CNetManager::CNetManager(void)
 {
 	m_hListenThread		= (THANDLE)NULL;
-	m_hSendThread		= (THANDLE)NULL;
 	m_hListenSocket		= NULL;
 	m_hCompletePort		= NULL;
 	m_bCloseSend		= TRUE;
@@ -192,10 +191,13 @@ BOOL CNetManager::WorkThread_ProcessEvent()
 			break;
 		case NET_CMD_SEND:
 			{
+				pIoPeratorData->pDataBuffer->Release();
 				CConnection *pConnection = (CConnection *)dwCompleteKey;
 				if(pConnection != NULL)
 				{
+					pConnection->m_CritSecSendList.Lock();
 					pConnection->DoSend();
+					pConnection->m_CritSecSendList.Unlock();
 				}
 				else
 				{
@@ -296,67 +298,6 @@ BOOL CNetManager::WorkThread_DispathEvent()
 }
 
 #else
-
-BOOL    CNetManager::WorkThread_SendData()
-{
-	while(!m_bCloseSend)
-	{
-		SendDataNode _SendNode;
-
-		if(!m_SendDataList.Pop(_SendNode))
-		{
-			continue;
-		}
-
-		IDataBuffer *pDataBuffer = (IDataBuffer *)_SendNode.pPtr;
-		if(pDataBuffer == NULL)
-		{
-			if(_SendNode.u64ConnID != 1)
-			{
-				CLog::GetInstancePtr()->AddLog("发送线程:空消息 ，准备退出发送线程!");
-			}
-
-			continue;
-		}
-
-		SOCKET hSocket = INVALID_SOCKET;
-		if(_SendNode.bIsConnID)
-		{
-			hSocket = CConnectionMgr::GetInstancePtr()->GetConnectionSocket(_SendNode.u64ConnID);
-		}
-		else
-		{
-			hSocket = (SOCKET)_SendNode.u64ConnID;
-
-			ASSERT(hSocket != INVALID_SOCKET);
-		}
-
-		if(hSocket == INVALID_SOCKET)
-		{
-			pDataBuffer->Release();
-
-			continue;
-		}
-
-		INT32 nRet = send(hSocket, pDataBuffer->GetData(),pDataBuffer->GetDataLenth(), 0);
-		if(nRet < 0)
-		{
-			int nErr = CommonSocket::GetSocketLastError();
-
-			CLog::GetInstancePtr()->AddLog("发送线程:发送失败, 原因:%s!", CommonSocket::GetLastErrorStr(nErr).c_str());
-		}
-		else if(nRet < pDataBuffer->GetDataLenth())
-		{
-			CommonSocket::CloseSocket(hSocket);
-
-			CLog::GetInstancePtr()->AddLog("发送线程:发送失败, 缓冲区满了!");
-		}
-
-		pDataBuffer->Release();
-	}
-
-	return TRUE;
-}
 
 BOOL CNetManager::CreateCompletePort()
 {
@@ -482,7 +423,11 @@ BOOL CNetManager::WorkThread_DispathEvent()
 					{
 						pConnection->SetConnectionOK(TRUE);
 
-						CLog::GetInstancePtr()->AddLog("-------EPOLLOUT-----成功---发送身份信息----!");
+						_EventNode.dwEvent = EVENT_WRITE;
+
+						_EventNode.pPtr = EpollEvent[i].data.ptr;
+
+						m_DispatchEventList.Push(_EventNode);
 					}
 
 					CLog::GetInstancePtr()->AddLog("-------EPOLLOUT-----成功-------!");
@@ -511,7 +456,7 @@ BOOL CNetManager::WorkThread_ProcessEvent()
 		CConnection *pConnection = (CConnection *)_EventNode.pPtr;
 		if(pConnection == NULL)
 		{
-			if(_EventNode.dwEvent != 1)
+			if((_EventNode.dwEvent != EVENT_READ) &&(_EventNode.dwEvent != EVENT_WRITE))
 			{
 				CLog::GetInstancePtr()->AddLog("错误:取出一个空事件!");
 			}
@@ -537,7 +482,16 @@ BOOL CNetManager::WorkThread_ProcessEvent()
 		}
 		else if(_EventNode.dwEvent == EVENT_WRITE)
 		{
+			pConnection->m_IoOverlapSend.pDataBuffer->Release();
+			pConnection->m_CritSecSendList.Lock();
+			pConnection->DoSend();
+			pConnection->m_CritSecSendList.Unlock();
 
+			struct epoll_event EpollEvent;
+			EpollEvent.data.ptr= pConnection;
+			EpollEvent.events  = EPOLLOUT|EPOLLET;
+
+			epoll_ctl(m_hCompletePort, EPOLL_CTL_MOD, pConnection->GetSocket(),  &EpollEvent);
 		}
 	}
 
@@ -637,7 +591,7 @@ BOOL CNetManager::StopListen()
 	return TRUE;
 }
 
-BOOL CNetManager::ConnectToOtherSvr( std::string strIpAddr, UINT16 sPort )
+CConnection* CNetManager::ConnectToOtherSvr( std::string strIpAddr, UINT16 sPort )
 {
 	SOCKET hSocket = CommonSocket::CreateSocket(AF_INET, SOCK_STREAM, 0);
 	if(hSocket == INVALID_SOCKET)
@@ -645,7 +599,7 @@ BOOL CNetManager::ConnectToOtherSvr( std::string strIpAddr, UINT16 sPort )
 		ASSERT_FAIELD;
 		CommonSocket::CloseSocket(hSocket);
 		CLog::GetInstancePtr()->AddLog("创建套接字失败!!");
-		return FALSE;
+		return NULL;
 	}
 
 	CommonSocket::SetSocketBlock(hSocket);
@@ -655,7 +609,7 @@ BOOL CNetManager::ConnectToOtherSvr( std::string strIpAddr, UINT16 sPort )
 	if(!CommonSocket::ConnectSocket(hSocket, strIpAddr.c_str(), sPort))
 	{
 		CommonSocket::CloseSocket(hSocket);
-		return FALSE;
+		return NULL;
 	}
 
 	CConnection *pConnection = AssociateCompletePort(hSocket);
@@ -663,19 +617,19 @@ BOOL CNetManager::ConnectToOtherSvr( std::string strIpAddr, UINT16 sPort )
 	{
 		ASSERT_FAIELD;
 		CLog::GetInstancePtr()->AddLog("邦定套接字到完成端口失败!!");
-
-		return FALSE;
+		return NULL;
 	}
 
 	if(!pConnection->DoReceive())
 	{
 		pConnection->Close();
+		return NULL;
 	}
 
-	return TRUE;
+	return pConnection;
 }
 
-BOOL CNetManager::ConnectToOtherSvrEx( std::string strIpAddr, UINT16 sPort )
+CConnection* CNetManager::ConnectToOtherSvrEx( std::string strIpAddr, UINT16 sPort )
 {
 	SOCKET hSocket = CommonSocket::CreateSocket(AF_INET, SOCK_STREAM, 0);
 	if(hSocket == INVALID_SOCKET)
@@ -683,7 +637,7 @@ BOOL CNetManager::ConnectToOtherSvrEx( std::string strIpAddr, UINT16 sPort )
 		ASSERT_FAIELD;
 		CommonSocket::CloseSocket(hSocket);
 		CLog::GetInstancePtr()->AddLog("创建套接字失败!!");
-		return FALSE;
+		return NULL;
 	}
 
 	CommonSocket::SetSocketUnblock(hSocket);
@@ -695,7 +649,7 @@ BOOL CNetManager::ConnectToOtherSvrEx( std::string strIpAddr, UINT16 sPort )
 	{
 		CLog::GetInstancePtr()->AddLog("邦定套接字到完成端口失败!!");
 
-		return FALSE;
+		return NULL;
 	}
 
 #ifdef WIN32
@@ -717,12 +671,12 @@ BOOL CNetManager::ConnectToOtherSvrEx( std::string strIpAddr, UINT16 sPort )
 
 		CLog::GetInstancePtr()->AddLog("连接服务器%s : %d失败!!", strIpAddr.c_str(), sPort);
 
-		return FALSE;
+		return NULL;
 	}
 
 	pConnection->m_dwIpAddr = CommonSocket::IpAddrStrToInt((CHAR*)strIpAddr.c_str());
 
-	return TRUE;
+	return pConnection;
 }
 
 BOOL	CNetManager::SendBufferByConnID(UINT64 u64ConID, IDataBuffer *pDataBuffer)

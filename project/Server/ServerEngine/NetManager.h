@@ -53,7 +53,11 @@ public:
 public:
 	BOOL	CreateCompletePort();
 
-	CConnection* AssociateCompletePort(SOCKET hSocket);
+	CConnection*	AssociateCompletePort(SOCKET hSocket);
+
+	CConnection*	ConnectToOtherSvr(std::string strIpAddr, UINT16 sPort);
+
+	CConnection*	ConnectToOtherSvrEx(std::string strIpAddr, UINT16 sPort);
 
 	BOOL	DestroyCompletePort();
 
@@ -71,9 +75,7 @@ public:
 
 	BOOL	WorkThread_Listen();
 
-	BOOL	ConnectToOtherSvr(std::string strIpAddr, UINT16 sPort);
-
-	BOOL	ConnectToOtherSvrEx(std::string strIpAddr, UINT16 sPort);
+	
 
 	SOCKET				m_hListenSocket;
 
@@ -90,7 +92,6 @@ public:
 	CommonQueue::CMessageQueue<EventNode>	m_DispatchEventList;
 	
 	THANDLE				 m_hListenThread;
-	THANDLE				 m_hSendThread;
 	THANDLE				 m_hDispathThread;
 	std::vector<THANDLE> m_vtEventThread;
 

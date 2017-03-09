@@ -78,7 +78,7 @@ BOOL ServiceBase::SendCmdToConnection(UINT16 uCmdID, T &Data, UINT64 u64ConnID, 
 		return FALSE;
 	}
 
-	CBufferHelper WriteHelper(TRUE, 1024);
+	CBufferHelper WriteHelper(TRUE, sizeof(T));
 	WriteHelper.BeginWrite(uCmdID, dwSceneID, uCharID);
 	WriteHelper.Write(Data);
 	WriteHelper.EndWrite();
@@ -96,50 +96,50 @@ BOOL ServiceBase::SendCmdToConnection(UINT64 u64ConnID, IDataBuffer *pSrcBuffer 
 		return FALSE;
 	}
 
-	IDataBuffer *pSendBuffer = CBufferManagerAll::GetInstancePtr()->AllocDataBuff(pSrcBuffer->GetDataLenth());
-	if(pSendBuffer == NULL)
-	{
-		ASSERT_FAIELD;
+	//IDataBuffer *pSendBuffer = CBufferManagerAll::GetInstancePtr()->AllocDataBuff(pSrcBuffer->GetTotalLenth());
+	//if(pSendBuffer == NULL)
+	//{
+	//	ASSERT_FAIELD;
 
-		return FALSE;
-	}
+	//	return FALSE;
+	//}
 
-	pSendBuffer->CopyFrom(pSrcBuffer);
+	//pSendBuffer->CopyFrom(pSrcBuffer);
 
-	return CNetManager::GetInstancePtr()->SendBufferByConnID(u64ConnID, pSendBuffer);
+	return CNetManager::GetInstancePtr()->SendBufferByConnID(u64ConnID, pSrcBuffer);
 }
 
-BOOL ServiceBase::SendCmdToConnection( UINT64 u64ConnID, UINT64 u64CharID, UINT32 dwSceneID, IDataBuffer *pSrcBuffer )
+ BOOL ServiceBase::SendCmdToConnection( UINT64 u64ConnID, UINT64 u64CharID, UINT32 dwSceneID, IDataBuffer *pSrcBuffer )
 {
 	if(u64ConnID == 0)
 	{
 		ASSERT_FAIELD;
-		return FALSE;
-	}
-
-	IDataBuffer *pSendBuffer = CBufferManagerAll::GetInstancePtr()->AllocDataBuff(pSrcBuffer->GetDataLenth());
-	if(pSendBuffer == NULL)
-	{
-		ASSERT_FAIELD;
-		
-		return FALSE;
-	}
-
-	pSendBuffer->CopyFrom(pSrcBuffer);
-
-	PacketHeader *pPacketHeader = (PacketHeader *)(pSendBuffer->GetBuffer());
+ 		return FALSE;
+ 	}
+ 
+ 	IDataBuffer *pSendBuffer = CBufferManagerAll::GetInstancePtr()->AllocDataBuff(pSrcBuffer->GetTotalLenth());
+ 	if(pSendBuffer == NULL)
+ 	{
+ 		ASSERT_FAIELD;
+ 		
+ 		return FALSE;
+ 	}
+ 
+ 	pSendBuffer->CopyFrom(pSrcBuffer);
+ 
+ 	PacketHeader *pPacketHeader = (PacketHeader *)(pSendBuffer->GetBuffer());
 
 	pPacketHeader->u64CharID	= u64CharID;
-	pPacketHeader->dwSceneID	= dwSceneID;
+ 	pPacketHeader->dwSceneID	= dwSceneID;
 
 	ASSERT(pPacketHeader->u64CharID  != 0);
 	ASSERT(pPacketHeader->wCommandID != 0);
 
 	return CNetManager::GetInstancePtr()->SendBufferByConnID(u64ConnID, pSendBuffer);
-}
+ }
 
 
-BOOL ServiceBase::ConnectToOtherSvr( std::string strIpAddr, UINT16 sPort )
+CConnection* ServiceBase::ConnectToOtherSvr( std::string strIpAddr, UINT16 sPort )
 {
 	return CNetManager::GetInstancePtr()->ConnectToOtherSvrEx(strIpAddr, sPort);
 }

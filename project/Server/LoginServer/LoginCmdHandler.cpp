@@ -103,7 +103,7 @@ BOOL CLoginCmdHandler::OnCmdNewAccountReq(NetPacket *pPacket )
 	WriteHelper.BeginWrite(CMD_DB_NEW_ACCOUNT_REQ, 0, 0);
 	WriteHelper.Write(DBNewAccountReq);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBNewAccountReq)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBNewAccountReq)+22));
 	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
 
 	return TRUE;
@@ -124,7 +124,7 @@ BOOL CLoginCmdHandler::OnCmdNewCharReq(NetPacket *pPacket)
 	WriteHelper.BeginWrite(CMD_DB_NEW_CHAR_REQ , 0, 0);
 	WriteHelper.Write(DBNewCharReq);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBNewCharReq)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBNewCharReq)+22));
 	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
 
 	return TRUE;
@@ -145,7 +145,7 @@ BOOL CLoginCmdHandler::OnCmdPickCharReq(NetPacket *pPacket)
 	WriteHelper.BeginWrite(CMD_DB_PICK_CHAR_REQ , 0, 0);
 	WriteHelper.Write(DBPickCharReq);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBPickCharReq)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBPickCharReq)+22));
 	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
 
 	return TRUE;
@@ -164,7 +164,7 @@ BOOL CLoginCmdHandler::OnCmdDBNewAccountAck( NetPacket *pPacket )
 	WriteHelper.BeginWrite(CMD_CHAR_NEW_ACCOUNT_ACK , 0, 0);
 	WriteHelper.Write(DBNewAccountAck.CharNewAccountAck);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBNewAccountAck.CharNewAccountAck)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBNewAccountAck.CharNewAccountAck)+22));
 	ServiceBase::GetInstancePtr()->SendCmdToConnection(DBNewAccountAck.u64ConnID, WriteHelper.GetDataBuffer());
 
 	return TRUE;
@@ -180,7 +180,7 @@ BOOL CLoginCmdHandler::OnCmdDBNewCharAck( NetPacket *pPacket )
 	WriteHelper.BeginWrite(CMD_CHAR_NEW_CHAR_ACK , 0, 0);
 	WriteHelper.Write(DBNewCharAck.CharNewCharAck);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBNewCharAck.CharNewCharAck)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBNewCharAck.CharNewCharAck)+22));
 	ServiceBase::GetInstancePtr()->SendCmdToConnection(DBNewCharAck.u64ConnID, WriteHelper.GetDataBuffer());
 	return TRUE;
 }
@@ -215,7 +215,7 @@ BOOL CLoginCmdHandler::OnCmdDBPickCharAck( NetPacket *pPacket )
 	WriteHelper.BeginWrite(CMD_CHAR_PICK_CHAR_ACK , 0, 0);
 	WriteHelper.Write(DBCharPickCharAck.CharPickCharAck);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBCharPickCharAck.CharPickCharAck)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBCharPickCharAck.CharPickCharAck)+22));
 	ServiceBase::GetInstancePtr()->SendCmdToConnection(DBCharPickCharAck.u64ConnID, WriteHelper.GetDataBuffer());
 
 	return TRUE;
@@ -231,7 +231,7 @@ BOOL CLoginCmdHandler::OnCmdDBLoginAck( NetPacket *pPacket )
 	WriteHelper.BeginWrite(CMD_CHAR_LOGIN_ACK , 0, 0);
 	WriteHelper.Write(DBCharLoginAck.CharLoginAck);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBCharLoginAck.CharLoginAck)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBCharLoginAck.CharLoginAck)+22));
 	ServiceBase::GetInstancePtr()->SendCmdToConnection(DBCharLoginAck.u64ConnID, WriteHelper.GetDataBuffer());
 
 	return TRUE;
@@ -252,7 +252,7 @@ BOOL CLoginCmdHandler::OnCmdDelCharReq( NetPacket *pPacket )
 	WriteHelper.BeginWrite(CMD_DB_DEL_CHAR_REQ , 0, 0);
 	WriteHelper.Write(DBDelCharReq);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBDelCharReq)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBDelCharReq)+22));
 	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
 
 	return TRUE;
@@ -268,7 +268,7 @@ BOOL CLoginCmdHandler::OnCmdDBDelCharAck( NetPacket *pPacket )
 	WriteHelper.BeginWrite(CMD_CHAR_DEL_CHAR_ACK, 0, 0);
 	WriteHelper.Write(DBDelCharAck.CharDelCharAck);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBDelCharAck.CharDelCharAck)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBDelCharAck.CharDelCharAck)+22));
 	ServiceBase::GetInstancePtr()->SendCmdToConnection(DBDelCharAck.u64ConnID, WriteHelper.GetDataBuffer());
 
 	return TRUE;

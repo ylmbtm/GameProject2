@@ -80,7 +80,7 @@ BOOL CWorldCmdHandler::OnCmdEnterGameReq(NetPacket *pNetPacket)
 	WriteHelper.BeginWrite(CMD_DB_LOAD_CHAR_REQ, 0, 0);
 	WriteHelper.Write(DBLoadCharInfoReq);
 	WriteHelper.EndWrite();
-	ASSERT(WriteHelper.GetDataBuffer()->GetDataLenth() >= (sizeof(DBLoadCharInfoReq)+22));
+	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBLoadCharInfoReq)+22));
 	if (!CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer()))
 	{
 		ASSERT_FAIELD;

@@ -15,7 +15,6 @@ struct NetIoOperatorData
 #ifdef WIN32
 	OVERLAPPED		Overlap;
 #endif
-
 	UINT32			dwCmdType;
 
 	IDataBuffer		*pDataBuffer;
@@ -26,8 +25,8 @@ struct NetIoOperatorData
 class CConnection
 {
 public:
-	CConnection(void);
-	virtual ~CConnection(void);
+	CConnection();
+	virtual ~CConnection();
 
 public:
 	BOOL	HandleRecvEvent(UINT32 dwBytes); 
@@ -56,9 +55,7 @@ public:
 
 	BOOL	SetConnectionOK(BOOL bOk);
 
-    BOOL    ReInit();
-
-	BOOL    CheckPacketHeader();
+    BOOL    Clear();
 
 	BOOL    SendBuffer(IDataBuffer	*pBuff);
 
@@ -71,18 +68,26 @@ public:
 
 	NetIoOperatorData			m_IoOverlapRecv;
 
+	NetIoOperatorData			m_IoOverlapSend;
+
     UINT32                      m_dwConnID;
 	UINT32                      m_dwConnType;
 
 	IDataHandler				*m_pDataHandler;
 
 	UINT32						m_dwIpAddr;
-	UINT32						m_dwDataLen;
 
+	UINT32						m_dwDataLen;
 	CHAR						m_pRecvBuf[CONST_BUFF_SIZE];
+	CHAR						*m_pBufPos;
+
+	IDataBuffer					*m_pCurRecvBuffer;
+	UINT32						m_pCurBufferSize;
+	UINT32						m_nCheckNo;
 
 	std::vector<IDataBuffer*>   m_SendBuffList;
 	BOOL						m_IsSending;
+	CCritSec				    m_CritSecSendList;
 
     CConnection                *m_pNext;
 };
@@ -113,9 +118,10 @@ public:
 	BOOL		    DestroyAllConnection();
 
 public:
-    CCritSec        m_CritSec;
-    CConnection     *m_pFreeConnRoot;
-    std::vector<CConnection> m_vtConnList;            //连接列表
+    
+    CConnection				*m_pFreeConnRoot;
+    std::vector<CConnection*> m_vtConnList;            //连接列表
+	CCritSec				 m_CritSecConnList;
 };
 
 #endif

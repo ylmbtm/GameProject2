@@ -198,7 +198,7 @@ BOOL CClientCmdHandler::SendNewAccountReq( LPCTSTR szAccountName, LPCTSTR szPass
 
 	WriteHelper.EndWrite();
 
-	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetData(), m_ClientConnector.GetWriteBuffer()->GetDataLenth());
+	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetBuffer(), m_ClientConnector.GetWriteBuffer()->GetTotalLenth());
 
 	return TRUE;
 }
@@ -246,7 +246,7 @@ BOOL CClientCmdHandler::SendPickCharReq( UINT64 u64CharID )
 
 	WriteHelper.EndWrite();
 
-	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetData(), m_ClientConnector.GetWriteBuffer()->GetDataLenth());
+	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetBuffer(), m_ClientConnector.GetWriteBuffer()->GetTotalLenth());
 
 	return TRUE;
 }
@@ -282,7 +282,7 @@ BOOL CClientCmdHandler::SendNewCharReq( UINT32 dwAccountID , LPCTSTR szCharName,
 
 	WriteHelper.EndWrite();
 
-	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetData(), m_ClientConnector.GetWriteBuffer()->GetDataLenth());
+	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetBuffer(), m_ClientConnector.GetWriteBuffer()->GetTotalLenth());
 
 	return TRUE;
 }
@@ -318,7 +318,7 @@ BOOL CClientCmdHandler::SendDelCharReq( UINT32 dwAccountID,UINT64 dwCharID )
 
 	WriteHelper.EndWrite();
 
-	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetData(), m_ClientConnector.GetWriteBuffer()->GetDataLenth());
+	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetBuffer(), m_ClientConnector.GetWriteBuffer()->GetTotalLenth());
 
 	return TRUE;
 }
@@ -361,7 +361,7 @@ BOOL CClientCmdHandler::SendLeaveGameReq( UINT64 u64CharID )
 
 	WriteHelper.EndWrite();
 
-	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetData(), m_ClientConnector.GetWriteBuffer()->GetDataLenth());
+	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetBuffer(), m_ClientConnector.GetWriteBuffer()->GetTotalLenth());
 
 	return TRUE;
 }
@@ -384,7 +384,7 @@ BOOL CClientCmdHandler::SendMoveReq( FLOAT x, FLOAT y, FLOAT z, UINT16 nDir)
 
 	CHECK_PAYER_ID(m_HostPlayer.GetObjectID());
 
-	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetData(), m_ClientConnector.GetWriteBuffer()->GetDataLenth());
+	m_ClientConnector.SendData(m_ClientConnector.GetWriteBuffer()->GetBuffer(), m_ClientConnector.GetWriteBuffer()->GetTotalLenth());
 
 	return TRUE;
 }
