@@ -441,7 +441,7 @@ BOOL CConnection::Clear()
 	m_IsSending	= FALSE;
 
 	m_CritSecSendList.Lock();
-	for(int i = 0; i < m_SendBuffList.size(); i++)
+	for(int i = 0; i < (int)m_SendBuffList.size(); i++)
 	{
 		m_SendBuffList[i]->Release();
 	}

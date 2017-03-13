@@ -27,6 +27,8 @@ CGameService* CGameService::GetInstancePtr()
 
 BOOL CGameService::Init()
 {
+	CommonFunc::SetCurrentWorkPath("");
+
 	if(!CLog::GetInstancePtr()->StartLog("GameServer", "log"))
 	{
 		ASSERT_FAIELD;

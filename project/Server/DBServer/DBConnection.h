@@ -23,26 +23,23 @@ public:
     CDBConnection( void );
     ~CDBConnection( void );
 
-    // connect.
-    bool Connect(char const *szHost, char const *szUser,char const *szPwd,char const *szDb,int nPort);
+	BOOL Init();
 
-    // close.
+	BOOL Uninit();
+
+    BOOL Connect(char const *szHost, char const *szUser,char const *szPwd,char const *szDb,int nPort);
+
     void Close( void );
 
-    // execute.
-    int Execute( CDBStoredProcedure *pDBStoredProcedure);
+    BOOL Execute( CDBStoredProcedure *pDBStoredProcedure);
 
-    // query.
-    int Query( CDBStoredProcedure *pDBStoredProcedure);
+    BOOL Query( CDBStoredProcedure *pDBStoredProcedure);
 
-    // errno.
     int GetError( void ) const;
 
 protected:
-    // reconnect.
     bool Reconnect( void );
 
-    // error process
     bool ProcError( char const *op_ = NULL, char const *func_ = NULL );
 
 private:

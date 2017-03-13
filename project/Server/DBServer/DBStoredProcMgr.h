@@ -14,7 +14,7 @@ class CDBStoredProcedureMgr
 public:
 	CDBStoredProcedureMgr();
 	~CDBStoredProcedureMgr();
-protected:
+public:
 
 	BOOL InitStoredProcedures();
 

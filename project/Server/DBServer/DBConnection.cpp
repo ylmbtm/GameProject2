@@ -17,12 +17,28 @@ CDBConnection::~CDBConnection( void )
     Close();
 }
 
+BOOL CDBConnection::Init()
+{
+	mysql_library_init( 0, NULL, NULL );
+	mysql_thread_init();
+
+	return true;
+}
+
+BOOL CDBConnection::Uninit()
+{
+	mysql_thread_end();
+	mysql_library_end();
+	return true;
+}
+
 // connect.
-bool CDBConnection::Connect(char const *szHost, char const *szUser,char const *szPwd,char const *szDb,int nPort)
+BOOL CDBConnection::Connect(char const *szHost, char const *szUser,char const *szPwd,char const *szDb,int nPort)
 {
     Close();
 
     m_pMySql = mysql_init( NULL );
+
     if ( NULL != m_pMySql )
     {
         // set character.
@@ -67,25 +83,20 @@ void CDBConnection::Close( void )
     }
 }
 
-// execute.
-int CDBConnection::Execute(CDBStoredProcedure *pDBStoredProcedure)
+BOOL CDBConnection::Execute(CDBStoredProcedure *pDBStoredProcedure)
 {
-    int nAffectedCount = -1;
-
 	if((NULL == m_pMySql)||(pDBStoredProcedure == NULL))
 	{
 		ASSERT_FAIELD;
-		return nAffectedCount;
+		return FALSE;
 	}
 
     MYSQL_STMT *pMySqlStmt = mysql_stmt_init(m_pMySql);
 	if(pMySqlStmt == NULL)
 	{
 		m_nErrno = mysql_errno( m_pMySql );
-
 		m_strError = mysql_error( m_pMySql );
-		
-		return nAffectedCount;
+		return FALSE;
 	}
 
 	if(0 != mysql_stmt_prepare(pMySqlStmt, pDBStoredProcedure->m_strSql.c_str(), pDBStoredProcedure->m_strSql.size()))
@@ -98,24 +109,20 @@ int CDBConnection::Execute(CDBStoredProcedure *pDBStoredProcedure)
 
 		pMySqlStmt = NULL;
 
-		return nAffectedCount;
+		return FALSE;
 	}
 
     my_bool _bl = 1;
     mysql_stmt_attr_set( pMySqlStmt, STMT_ATTR_UPDATE_MAX_LENGTH, &_bl );
 
-	//
 	if(mysql_stmt_param_count( pMySqlStmt ) != pDBStoredProcedure->m_nCount)
 	{
 		m_nErrno = mysql_errno( m_pMySql );
 		m_strError = mysql_error( m_pMySql );
-
 		mysql_stmt_close( pMySqlStmt );
-
 		pMySqlStmt = NULL;
-
 		ASSERT_FAIELD;
-		return nAffectedCount;
+		return FALSE;
 	}
 
 	if(pDBStoredProcedure->m_pMybind != NULL)
@@ -127,7 +134,7 @@ int CDBConnection::Execute(CDBStoredProcedure *pDBStoredProcedure)
 			mysql_stmt_close( pMySqlStmt );
 			pMySqlStmt = NULL;
 			ASSERT_FAIELD;
-			return nAffectedCount;
+			return FALSE;
 		}
 	}
 
@@ -136,7 +143,7 @@ int CDBConnection::Execute(CDBStoredProcedure *pDBStoredProcedure)
 		m_nErrno = mysql_errno( m_pMySql );
 		m_strError = mysql_error( m_pMySql );
 		ASSERT_FAIELD;
-		return nAffectedCount;
+		return FALSE;
 	}
 
 	 if (0 != mysql_stmt_execute( pMySqlStmt ))
@@ -146,19 +153,8 @@ int CDBConnection::Execute(CDBStoredProcedure *pDBStoredProcedure)
 		 mysql_stmt_close( pMySqlStmt );
 		 pMySqlStmt = NULL;
 		 ASSERT_FAIELD;
-		 return nAffectedCount;
+		 return FALSE;
 	 }
-
-    nAffectedCount = (int)mysql_stmt_affected_rows( pMySqlStmt );
-	if(nAffectedCount < 0)
-	{
-		m_nErrno = mysql_errno( m_pMySql );
-		m_strError = mysql_error( m_pMySql );
-		mysql_stmt_close( pMySqlStmt );
-		pMySqlStmt = NULL;
-		ASSERT_FAIELD;
-		return nAffectedCount;
-	}
 
     // 检查是否有结果集
     MYSQL_RES *pMySqlResult = mysql_stmt_result_metadata( pMySqlStmt );
@@ -168,7 +164,7 @@ int CDBConnection::Execute(CDBStoredProcedure *pDBStoredProcedure)
 		mysql_stmt_close( pMySqlStmt );
 		pMySqlStmt = NULL;
 		ASSERT_FAIELD;
-		return nAffectedCount;
+		return FALSE;
 	}
 
     unsigned int server_status = m_pMySql->server_status;
@@ -177,11 +173,14 @@ int CDBConnection::Execute(CDBStoredProcedure *pDBStoredProcedure)
     {
         //write_log( "此调用存储存在返回参数值，请检查sql语句和存储过程实现!\n" );
         mysql_stmt_store_result( pMySqlStmt );
-        mysql_free_result( pMySqlResult );
-        mysql_stmt_free_result( pMySqlStmt );
+		pDBStoredProcedure->m_DBRecordSet.InitRecordSet(pMySqlStmt, pMySqlResult);
+        //mysql_free_result( pMySqlResult );
+        //mysql_stmt_free_result( pMySqlStmt );
     }
     else
     {
+		//zm :走到这里来，是不应该的， 更新存储过程最多可能带参数，不允许返回结果集
+		ASSERT_FAIELD;
         //write_log( "执行查询操作不应该返回任何结果集，请检查sql语句和存储过程实现!\n" );
         mysql_stmt_store_result( pMySqlStmt );
         mysql_free_result( pMySqlResult );
@@ -209,34 +208,34 @@ int CDBConnection::Execute(CDBStoredProcedure *pDBStoredProcedure)
         }
     }
     
-    return nAffectedCount;
+    return TRUE;
 }
 
+// int CDBConnection::ExecuteEx(CDBStoredProcedure *pDBStoredProcedure)
+// {
+// 	//if (mysql_real_query(m_pMySql, pDBStoredProcedure->m_strSql.c_str(), pDBStoredProcedure->m_strSql.size()) == 0)
+// 	//{
+// 	//	pDBStoredProcedure->m_DBRecordSet.m_pResult = mysql_store_result(m_pMySql);
+// 	//}
+// 
+// 	return 0;
+// }
+
 // query.
-int CDBConnection::Query(CDBStoredProcedure *pDBStoredProcedure)
+BOOL CDBConnection::Query(CDBStoredProcedure *pDBStoredProcedure)
 {
 	if(pDBStoredProcedure->m_pMybind == NULL)
 	{
 		ASSERT_FAIELD;
-		return -1;
+		return FALSE;
 	}
-
-	if(pDBStoredProcedure->m_DBRecordSet.GetFieldNum() <=0)
-	{
-		ASSERT_FAIELD;
-		return -1;
-	}
-
-   
 
     if ( NULL == m_pMySql || NULL == pDBStoredProcedure)
 	{
 		ASSERT_FAIELD;
-		return -1;
+		return FALSE;
 	}
 	
-	
-    
     MYSQL_STMT *pMySqlStmt = mysql_stmt_init( m_pMySql );
 	if(NULL == pMySqlStmt)
 	{
@@ -244,7 +243,7 @@ int CDBConnection::Query(CDBStoredProcedure *pDBStoredProcedure)
 
 		m_strError = mysql_error( m_pMySql );
 
-		return -1;
+		return FALSE;
 	}
 
 	if(0 != mysql_stmt_prepare(pMySqlStmt, pDBStoredProcedure->m_strSql.c_str(), pDBStoredProcedure->m_strSql.size()))
@@ -256,7 +255,7 @@ int CDBConnection::Query(CDBStoredProcedure *pDBStoredProcedure)
 		mysql_stmt_close( pMySqlStmt );
 		pMySqlStmt = NULL;
 
-		return -1;
+		return FALSE;
 	}
 
     my_bool _bl = 1;
@@ -268,7 +267,7 @@ int CDBConnection::Query(CDBStoredProcedure *pDBStoredProcedure)
 		m_strError = mysql_error( m_pMySql );
 		mysql_stmt_close( pMySqlStmt );
 		pMySqlStmt = NULL;
-		return -1;
+		return FALSE;
 	}
 	
 	if(pMySqlStmt == NULL)
@@ -276,7 +275,7 @@ int CDBConnection::Query(CDBStoredProcedure *pDBStoredProcedure)
 		m_nErrno = mysql_errno( m_pMySql );
 		m_strError = mysql_error( m_pMySql );
 
-		return -1;
+		return FALSE;
 	}
 
 	if (0 != mysql_stmt_execute( pMySqlStmt ))
@@ -285,10 +284,8 @@ int CDBConnection::Query(CDBStoredProcedure *pDBStoredProcedure)
 		m_strError = mysql_error( m_pMySql );
 		mysql_stmt_close( pMySqlStmt );
 		pMySqlStmt = NULL;
-		return -1;
+		return FALSE;
 	}
-
-	int nAffectedCount = (int)mysql_stmt_affected_rows( pMySqlStmt );
 
 	// 检查是否有结果集
 	MYSQL_RES *pMySqlResult = mysql_stmt_result_metadata( pMySqlStmt );
@@ -297,7 +294,7 @@ int CDBConnection::Query(CDBStoredProcedure *pDBStoredProcedure)
 		pMySqlResult  = NULL;
 		mysql_stmt_close( pMySqlStmt );
 		pMySqlStmt = NULL;
-		return nAffectedCount;
+		return FALSE;
 	}
 
     unsigned int server_status = m_pMySql->server_status;
@@ -308,18 +305,17 @@ int CDBConnection::Query(CDBStoredProcedure *pDBStoredProcedure)
 		m_strError = mysql_error( m_pMySql );
 		mysql_stmt_close( pMySqlStmt );
 		pMySqlStmt = NULL;
-		return nAffectedCount;
+		return FALSE;
 	}
 
-	 nAffectedCount = (int)mysql_stmt_num_rows(pMySqlStmt);
-	 if(nAffectedCount <= 0)
-	 {
-		 return nAffectedCount;
-	 }
+	if((int)mysql_stmt_num_rows(pMySqlStmt) <= 0)
+	{
+		return FALSE;
+	}
 
-	 pDBStoredProcedure->m_DBRecordSet.InitRecordSet(pMySqlStmt, pMySqlResult);
+	pDBStoredProcedure->m_DBRecordSet.InitRecordSet(pMySqlStmt, pMySqlResult);
 
-    return nAffectedCount;
+    return TRUE;
 }
 
 // reconnect.

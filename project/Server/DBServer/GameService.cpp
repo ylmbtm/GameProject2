@@ -28,6 +28,8 @@ CGameService* CGameService::GetInstancePtr()
 
 BOOL CGameService::Init()
 {
+	CommonFunc::SetCurrentWorkPath("");
+
 	if(!CLog::GetInstancePtr()->StartLog("DBServer", "log"))
 	{
 		ASSERT_FAIELD;
@@ -78,7 +80,7 @@ BOOL CGameService::DispatchPacket(NetPacket *pNetPacket)
 	{
 	default:
 		{
-			m_DBCmdHandler.DispatchPacket(pNetPacket);
+			
 		}
 		break;
 	}

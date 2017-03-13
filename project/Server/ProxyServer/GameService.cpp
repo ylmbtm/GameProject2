@@ -29,6 +29,8 @@ CGameService* CGameService::GetInstancePtr()
 
 BOOL CGameService::Init()
 {
+	CommonFunc::SetCurrentWorkPath("");
+
 	if(!CLog::GetInstancePtr()->StartLog("ProxyServer","log"))
 	{
 		ASSERT_FAIELD;
