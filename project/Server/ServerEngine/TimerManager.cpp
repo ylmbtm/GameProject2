@@ -3,16 +3,6 @@
 #include "../../Common/Utility/CommonFunc.h"
 
 
-TimeEvent::TimeEvent()
-{
-	dwStartTime = 0;
-	dwEndTime   = 0;
-	dwTimerID   = 0;
-	wParam      = 0;
-	lParam		= 0;
-
-	m_pNext     = NULL;
-}
 
 TimerManager::TimerManager()
 {
@@ -26,7 +16,7 @@ TimerManager::~TimerManager()
 
 }
 
-BOOL TimerManager::AddTimer( UINT32 dwTimerID, UINT32 wParam, UINT32 lParam )
+BOOL TimerManager::AddFixTimer(UINT32 dwTimerID, UINT32 dwData, UINT32 dwHour, UINT32 dwMin, UINT32 dwSec)
 {
 	TimeEvent *pNewEvent = NULL;
 	if(m_pFree == NULL)
@@ -36,57 +26,84 @@ BOOL TimerManager::AddTimer( UINT32 dwTimerID, UINT32 wParam, UINT32 lParam )
 	else
 	{
 		pNewEvent = m_pFree;
-
 		m_pFree = m_pFree->m_pNext;
+		m_pFree->m_pPrev = NULL;
 	}
 
-	pNewEvent->dwTimerID = dwTimerID = dwTimerID;
+	pNewEvent->m_pNext = NULL;
+	pNewEvent->m_pPrev = NULL;
 
-	pNewEvent->wParam = wParam;
+	pNewEvent->m_dwTimerID = dwTimerID;
+	pNewEvent->m_dwData = dwData;
+	pNewEvent->m_dwFireTime = CommonFunc::GetDayTime() + dwHour * 3600 + dwMin * 60 + dwSec;
 
-	pNewEvent->lParam = lParam;
+	pNewEvent->m_dwHour = dwHour;
+	pNewEvent->m_dwMin = dwMin;
+	pNewEvent->m_dwSec = dwSec;
+	pNewEvent->m_dwType = 1;
 
+	if(m_pHead == NULL)
+	{
+		m_pHead = pNewEvent;
+	}
+	else
+	{
+		pNewEvent->m_pNext = m_pHead;
+		m_pHead->m_pPrev = pNewEvent;
+		m_pHead = pNewEvent;
+		m_pHead->m_pPrev = NULL;
+	}
+
+	//TimeEvent *pInserPos = m_pHead;
+	//while(pInserPos != NULL)
+	//{
+	//	if(pNewEvent->dwFireTime < pInserPos->dwFireTime)
+	//	{
+	//		
+	//
+	//		return TRUE;
+	//	}
+	//}
+
+	return TRUE;
+}
+
+BOOL TimerManager::AddDiffTimer(UINT32 dwTimerID, UINT32 dwData, UINT32 dwHour, UINT32 dwMin, UINT32 dwSec)
+{
+	TimeEvent *pNewEvent = NULL;
 	if(m_pFree == NULL)
 	{
-		m_pFree = pNewEvent;
-
-		return TRUE;
+		pNewEvent = new TimeEvent;
+	}
+	else
+	{
+		pNewEvent = m_pFree;
+		m_pFree = m_pFree->m_pNext;
+		m_pFree->m_pPrev = NULL;
 	}
 
-	if(pNewEvent->dwEndTime <= m_pFree->dwEndTime)
+	pNewEvent->m_pNext = NULL;
+	pNewEvent->m_pPrev = NULL;
+
+	pNewEvent->m_dwTimerID = dwTimerID;
+	pNewEvent->m_dwData = dwData;
+
+	pNewEvent->m_dwFireTime = dwCurTime + dwHour * 3600 + dwMin * 60 + dwSec;
+
+	pNewEvent->m_dwHour = dwHour;
+	pNewEvent->m_dwMin = dwMin;
+	pNewEvent->m_dwSec = dwSec;
+	pNewEvent->m_dwType = 2;
+	if(m_pHead == NULL)
 	{
-		pNewEvent->m_pNext = m_pFree;
-
-		m_pFree = pNewEvent;
-
-		return TRUE;
+		m_pHead = pNewEvent;
 	}
-
-	TimeEvent *pInserPos = m_pFree;
-
-	while(pInserPos != NULL)
+	else
 	{
-		if(pNewEvent->dwEndTime >= pInserPos->dwEndTime)
-		{
-			if(pInserPos->m_pNext == NULL)
-			{
-				pInserPos->m_pNext = pNewEvent;
-
-				return TRUE;
-			}
-
-			if(pNewEvent->dwEndTime >= pInserPos->m_pNext->dwEndTime)
-			{
-				pInserPos = pInserPos->m_pNext;
-				continue;
-			}
-
-			pNewEvent->m_pNext = pInserPos->m_pNext;
-
-			pInserPos->m_pNext = pNewEvent;
-
-			return TRUE;
-		}
+		pNewEvent->m_pNext = m_pHead;
+		m_pHead->m_pPrev = pNewEvent;
+		m_pHead = pNewEvent;
+		m_pHead->m_pPrev = NULL;
 	}
 
 	return TRUE;
@@ -99,7 +116,7 @@ BOOL TimerManager::DelTimer( UINT32 dwTimerID )
 		return TRUE;
 	}
 
-	if(m_pHead->dwTimerID == dwTimerID)
+	if(m_pHead->m_dwTimerID == dwTimerID)
 	{
 		TimeEvent *pEvent = m_pHead;
 
@@ -117,7 +134,7 @@ BOOL TimerManager::DelTimer( UINT32 dwTimerID )
 
 	while(pEvent->m_pNext != NULL)
 	{
-		if(pEvent->m_pNext->dwTimerID == dwTimerID)
+		if(pEvent->m_pNext->m_dwTimerID == dwTimerID)
 		{
 			TimeEvent *pDelEvent = pEvent->m_pNext;
 
@@ -139,27 +156,34 @@ BOOL TimerManager::DelTimer( UINT32 dwTimerID )
 
 VOID TimerManager::UpdateTimer()
 {
-	UINT32 dwCurTick = CommonFunc::GetTickCount();
+	m_dwCurTime = CommonFunc::GetCurrTime();
 
-	while(m_pHead != NULL)
+	TimeEvent *pCurEvent = m_pHead;
+	while(pCurEvent != NULL)
 	{
-		if(dwCurTick >= m_pHead->dwEndTime)
+		if(m_dwCurTime >= pCurEvent->m_dwFireTime)
 		{
-			OnTimerEvent(m_pHead);
+			OnTimerEvent(pCurEvent);
 
-			TimeEvent *pEvent = m_pHead;
+			pCurEvent->m_dwRepeateTimes -= 1;
+		}
 
-			m_pHead = m_pHead->m_pNext;
-
-			pEvent->m_pNext = m_pFree;
-
-			m_pFree = pEvent;
+		if(pCurEvent->m_dwRepeateTimes <= 0)
+		{
+			if(pCurEvent->m_dwType == 1)
+			{
+				pCurEvent->m_dwFireTime = pCurEvent->m_dwFireTime + 86400;
+			}
+			else
+			{
+				pCurEvent->m_dwFireTime = pCurEvent->m_dwFireTime + pCurEvent->m_dwHour*3600+ pCurEvent->m_dwMin*60 + pCurEvent->m_dwSec;
+			}
 		}
 	}
 }
 
 
-VOID TimerManager::OnBlood( UINT32 dwStartTime, UINT32 dwEndTime, UINT32 wParam, UINT32 lParam )
+VOID TimerManager::OnNewDay( UINT32 dwTimerID, UINT32 dwData)
 {
 
 	return ;

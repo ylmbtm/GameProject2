@@ -136,11 +136,45 @@ BOOL CCommonWorkThread::SetCommandHandler( IThreadCommandHandler *pCommandHandle
 	return TRUE;
 }
 
+BOOL CCommonWorkThread::OnThreadBegin()
+{
+	if(m_pCommandHandler == NULL)
+	{
+		return FALSE;
+	}
+
+	m_pCommandHandler->OnThreadBegin();
+
+	return TRUE;
+}
+
+BOOL CCommonWorkThread::OnThreadEnd()
+{
+	if(m_pCommandHandler == NULL)
+	{
+		return FALSE;
+	}
+
+	m_pCommandHandler->OnThreadEnd();
+
+	return TRUE;
+}
+
+
 Th_RetName _CommonWorkThread( void *pParam )
 {
 	CCommonWorkThread *pThread = (CCommonWorkThread *)pParam;
 
+	if(!pThread->OnThreadBegin())
+	{
+		ASSERT_FAIELD;
+
+		return Th_RetValue;
+	}
+
 	pThread->Run();
+
+	pThread->OnThreadEnd();
 
 	return Th_RetValue;
 }

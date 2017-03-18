@@ -80,7 +80,7 @@ BOOL CGameService::DispatchPacket(NetPacket *pNetPacket)
 	{
 	default:
 		{
-			
+			m_DBCmdHandler.AddMessage(pNetPacket->m_pConnect->GetConnectionID(), pNetPacket->m_pDataBuffer);
 		}
 		break;
 	}

@@ -462,55 +462,6 @@ BOOL CConnection::SendBuffer(IDataBuffer *pBuff)
 	return TRUE;
 }
 
-// BOOL CConnection::DoSend()
-// {
-// 	///如果正在发送中就直接返回
-// 	if (m_IsSending)
-// 	{
-// 		return false;
-// 	}
-// 
-// 	IDataBuffer *pDataBuffer = (IDataBuffer *)m_SendBuffList[0];
-// 	if(pDataBuffer == NULL)
-// 	{
-// 		return TRUE;
-// 	}
-// 
-// 	WSABUF  DataBuf;
-// 	DataBuf.len = pDataBuffer->GetTotalLenth();
-// 	DataBuf.buf = pDataBuffer->GetBuffer();
-// 
-// 	m_IoOverlapSend.Clear();
-// 	m_IoOverlapSend.dwCmdType   = NET_CMD_SEND;
-// 	m_IoOverlapSend.pDataBuffer = pDataBuffer;
-// 
-// 	m_SendBuffList.clear();
-// 
-// 	DWORD dwSendBytes = 0;
-// 	int nRet = WSASend(m_hSocket, &DataBuf, 1, &dwSendBytes, 0, (LPOVERLAPPED)&m_IoOverlapSend, NULL);
-// 	if(nRet == 0) //发送成功
-// 	{
-// 		if(dwSendBytes < DataBuf.len)
-// 		{
-// 			CLog::GetInstancePtr()->AddLog("发送线程:直接发送功数据%d!", dwSendBytes);
-// 		}
-// 
-// 	}
-// 	else if( nRet == -1 ) //发送出错
-// 	{
-// 		UINT32 errCode = CommonSocket::GetSocketLastError();
-// 		if(errCode != ERROR_IO_PENDING)
-// 		{
-// 			Close();
-// 			pDataBuffer->Release();
-// 			CLog::GetInstancePtr()->AddLog("发送线程:发送失败, 连接关闭原因:%s!", CommonSocket::GetLastErrorStr(errCode).c_str());
-// 		}
-// 	}
-// 	
-// 	return TRUE;
-// }
-
-
 #ifdef WIN32
 BOOL CConnection::DoSend()
 {

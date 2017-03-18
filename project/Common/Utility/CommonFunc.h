@@ -19,6 +19,8 @@ namespace CommonFunc
 
 	UINT32			GetCurrTime();
 
+	UINT32			GetDayTime();
+
 	UINT32			GetCurrDate();
 
 	UINT32			GetTickCount();

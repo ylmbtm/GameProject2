@@ -6,6 +6,8 @@
 enum DBStoredProcedureID
 {
 	DB_INSERT_PLAYER_INFO,
+
+	DB_FIND_PLAYER_INFO,
 	
     MAX_DBServerDB_STATEMENTS,		
 };

@@ -4,22 +4,28 @@
 #include "PacketDef/ServerPacket.h"
 #include "DBProcManager.h"
 #include "DBPlayerObject.h"
+#include "DBConnection.h"
+#include "DBStoredProcMgr.h"
 
 
-class CDBCmdHandler
+class CDBCmdHandler : public CCommonCmdHandler
 {
 public:
 	CDBCmdHandler();
 
 	~CDBCmdHandler();
 
+	BOOL DispatchPacket(NetPacket *pNetPacket);
+
+	BOOL OnUpdate( UINT32 dwTick );
+
 	BOOL Init(UINT32 dwReserved);
 
 	BOOL Uninit();
 
-	BOOL DispatchPacket(NetPacket *pNetPacket);
+	BOOL OnThreadBegin();
 
-	BOOL OnUpdate( UINT32 dwTick );
+	BOOL OnThreadEnd();
 
 	//*********************消息处理定义开始******************************
 public:
@@ -38,6 +44,10 @@ public:
 	//读取玩家的数据
 	BOOL LoadPlayerBaseData(UINT64 u64CharID);
 
+	//真实的mysql
+	CDBConnection   m_DBConnection;
+
+	CDBStoredProcedureMgr m_DBProceduceMgr;
 
 	//玩家数据管理器
 	CDBPlayerObjectMgr  m_DBPlayerMgr;

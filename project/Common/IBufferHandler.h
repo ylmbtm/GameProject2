@@ -46,6 +46,8 @@ struct  IThreadCommandHandler
 {
 	virtual BOOL OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper) = 0;
 	virtual BOOL OnUpdate(UINT32 dwTick) = 0;
+	virtual BOOL OnThreadBegin() = 0;
+	virtual BOOL OnThreadEnd() = 0;
 };
 
 

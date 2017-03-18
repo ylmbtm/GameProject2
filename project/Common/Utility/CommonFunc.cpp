@@ -69,6 +69,18 @@ UINT32 CommonFunc::GetCurrTime()
 	return (UINT32)t;
 }
 
+UINT32 CommonFunc::GetDayTime()
+{
+	time_t t;    
+	t=time(0);
+	tm* t_tm = localtime(&t);
+	t_tm->tm_hour = 0;
+	t_tm->tm_min = 0;
+	t_tm->tm_sec = 0;
+	t = mktime(t_tm);
+	return (UINT32)t;
+}
+
 UINT32 CommonFunc::GetCurrDate()
 {
 	time_t t = time(0);

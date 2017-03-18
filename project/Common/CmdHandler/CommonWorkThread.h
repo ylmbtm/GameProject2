@@ -42,6 +42,10 @@ public:
 
 	BOOL			SetCommandHandler(IThreadCommandHandler *pCommandHandler);
 
+	BOOL			OnThreadBegin();
+
+	BOOL			OnThreadEnd();
+
 protected:
 	THANDLE					m_hThread;
 
