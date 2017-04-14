@@ -26,14 +26,14 @@ public:
 
 	BOOL		DispatchPacket( NetPacket *pNetPacket);
 
-	BOOL        SendCmdToDBConnection(IDataBuffer *pBuffer);
+	BOOL        SendCmdToAccountConnection(IDataBuffer *pBuffer);
 
 public:
 	CLoginCmdHandler	m_LoginCmdHandler;
 
 
 	CConnection        *m_pStatSvrConn;
-	CConnection        *m_pDbSvrConn;
+	CConnection        *m_pAccountSvrConn;
 };
 
 #endif

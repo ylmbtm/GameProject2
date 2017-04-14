@@ -88,7 +88,7 @@ BOOL TimerManager::AddDiffTimer(UINT32 dwTimerID, UINT32 dwData, UINT32 dwHour, 
 	pNewEvent->m_dwTimerID = dwTimerID;
 	pNewEvent->m_dwData = dwData;
 
-	pNewEvent->m_dwFireTime = dwCurTime + dwHour * 3600 + dwMin * 60 + dwSec;
+	pNewEvent->m_dwFireTime = CommonFunc::GetCurrTime() + dwHour * 3600 + dwMin * 60 + dwSec;
 
 	pNewEvent->m_dwHour = dwHour;
 	pNewEvent->m_dwMin = dwMin;

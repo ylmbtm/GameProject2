@@ -63,10 +63,10 @@ BOOL CGameService::Init()
 	}
 
 
-	UINT32 nDBPort = CConfigFile::GetInstancePtr()->GetIntValue("db_svr_port");
-	std::string strDBIp = CConfigFile::GetInstancePtr()->GetStringValue("db_svr_ip");
-	m_pDbSvrConn = ServiceBase::GetInstancePtr()->ConnectToOtherSvr(strDBIp, nDBPort);
-	if(m_pDbSvrConn == NULL)
+	UINT32 nAccountPort = CConfigFile::GetInstancePtr()->GetIntValue("account_svr_port");
+	std::string strAccountIp = CConfigFile::GetInstancePtr()->GetStringValue("account_svr_ip");
+	m_pAccountSvrConn = ServiceBase::GetInstancePtr()->ConnectToOtherSvr(strAccountIp, nAccountPort);
+	if(m_pAccountSvrConn == NULL)
 	{
 		ASSERT_FAIELD;
 		return FALSE;
@@ -96,15 +96,15 @@ BOOL CGameService::Run()
 }
 
 
-BOOL CGameService::SendCmdToDBConnection(IDataBuffer *pBuffer)
+BOOL CGameService::SendCmdToAccountConnection(IDataBuffer *pBuffer)
 {
-	if(m_pDbSvrConn == NULL)
+	if(m_pAccountSvrConn == NULL || !m_pAccountSvrConn->IsConnectionOK())
 	{
 		ASSERT_FAIELD;
 		return FALSE;
 	}
 
-	m_pDbSvrConn->SendBuffer(pBuffer);
+	m_pAccountSvrConn->SendBuffer(pBuffer);
 
 	return TRUE;
 }

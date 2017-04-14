@@ -190,3 +190,43 @@ UINT32 CommonFunc::GetFreePhysMemory()
 }
 
 
+INT32 CommonFunc::FloatToInt(FLOAT value)
+{
+	return 0;
+}
+
+UINT32 CommonFunc::GetRandNum(INT32 nType)
+{
+	if(nType >= 100||nType <0)
+	{
+		return 0;
+	}
+
+	static int nRandIndex[100] = {0};
+	static UINT32 vtGlobalRankValue[10000];
+	static bool bInit = false;
+
+	if(bInit == false)
+	{
+		bInit = true;
+		int nTempIndex;
+		UINT32 nTemp;
+		for(int j = 0; j < 10000; j++ )
+		{
+			vtGlobalRankValue[j] = j + 1;
+		}
+
+		for(int i = 0; i < 10000; i++ )
+		{
+			nTempIndex = rand() % (i + 1);
+			if (nTempIndex != i)
+			{
+				nTemp = vtGlobalRankValue[i];
+				vtGlobalRankValue[i] = vtGlobalRankValue[nTempIndex];
+				vtGlobalRankValue[nTempIndex] = nTemp;
+			}
+		}
+	}
+
+	return  vtGlobalRankValue[nRandIndex[nType]++];
+}

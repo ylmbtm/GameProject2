@@ -29,11 +29,11 @@ public:
 
 	//*********************消息处理定义开始******************************
 public:
-	BOOL OnCmdDBNewAccountReq(NetPacket *pPacket);
+
 	BOOL OnCmdDBNewCharReq(NetPacket *pPacket);
 	BOOL OnCmdDBDelCharReq(NetPacket *pPacket);
 	BOOL OnCmdDBPickCharReq(NetPacket *pPacket);
-	BOOL OnCmdDBLoginReq(NetPacket *pPacket);
+	
 	BOOL OnCmdDBLoadCharReq(NetPacket *pPacket);
 	BOOL OnCmdDBSaveCharReq(NetPacket *pPacket);
 	

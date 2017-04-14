@@ -30,6 +30,10 @@ namespace CommonFunc
 	UINT32			GetCurThreadID();
 
 	UINT32			GetFreePhysMemory();  
+
+	INT32           FloatToInt(FLOAT value);
+
+	UINT32          GetRandNum(INT32 nType);
 }
 
 

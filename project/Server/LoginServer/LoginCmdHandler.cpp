@@ -82,7 +82,7 @@ BOOL CLoginCmdHandler::OnCmdLoginReq(NetPacket *pPacket)
 	WriteHelper.BeginWrite(CMD_DB_LOGIN_REQ, 0, 0);
 	WriteHelper.Write(DBCharLoginReq);
 	WriteHelper.EndWrite();
-	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
+	CGameService::GetInstancePtr()->SendCmdToAccountConnection(WriteHelper.GetDataBuffer());
 	
 	return TRUE;
 }
@@ -104,7 +104,7 @@ BOOL CLoginCmdHandler::OnCmdNewAccountReq(NetPacket *pPacket )
 	WriteHelper.Write(DBNewAccountReq);
 	WriteHelper.EndWrite();
 	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBNewAccountReq)+22));
-	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
+	CGameService::GetInstancePtr()->SendCmdToAccountConnection(WriteHelper.GetDataBuffer());
 
 	return TRUE;
 }
@@ -125,7 +125,7 @@ BOOL CLoginCmdHandler::OnCmdNewCharReq(NetPacket *pPacket)
 	WriteHelper.Write(DBNewCharReq);
 	WriteHelper.EndWrite();
 	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBNewCharReq)+22));
-	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
+	CGameService::GetInstancePtr()->SendCmdToAccountConnection(WriteHelper.GetDataBuffer());
 
 	return TRUE;
 }
@@ -146,7 +146,7 @@ BOOL CLoginCmdHandler::OnCmdPickCharReq(NetPacket *pPacket)
 	WriteHelper.Write(DBPickCharReq);
 	WriteHelper.EndWrite();
 	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBPickCharReq)+22));
-	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
+	CGameService::GetInstancePtr()->SendCmdToAccountConnection(WriteHelper.GetDataBuffer());
 
 	return TRUE;
 }
@@ -253,7 +253,7 @@ BOOL CLoginCmdHandler::OnCmdDelCharReq( NetPacket *pPacket )
 	WriteHelper.Write(DBDelCharReq);
 	WriteHelper.EndWrite();
 	ASSERT(WriteHelper.GetDataBuffer()->GetTotalLenth() >= (sizeof(DBDelCharReq)+22));
-	CGameService::GetInstancePtr()->SendCmdToDBConnection(WriteHelper.GetDataBuffer());
+	CGameService::GetInstancePtr()->SendCmdToAccountConnection(WriteHelper.GetDataBuffer());
 
 	return TRUE;
 }

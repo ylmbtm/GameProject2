@@ -5,7 +5,7 @@ enum Command_ID
 {
 	CMD_BEGIN_TAG,
 	//服务器的连接通知
-	CMD_NEW_CONNECTION = 1,		//连接通知
+	CMD_NEW_CONNECTION = 1,		    //连接通知
 	CMD_CLOSE_CONNECTION = 2,		//断开连接通知
 
 	//用于服务器间连络的命令
@@ -21,6 +21,17 @@ enum Command_ID
 	//玩家登录命令
 	CMD_CHAR_NEW_ACCOUNT_REQ,	//玩家注册账号的命令
 	CMD_CHAR_NEW_ACCOUNT_ACK,   //玩家注册账号命令的回包
+
+	CMD_CHAR_ACCOUNT_LOGIN_REQ,    //登录账号
+	CMD_CHAR_ACCOUNT_LOGIN_ACK,
+
+	CMD_CHAR_SERVER_LIST_REQ,      //请求所有的服务器列表
+	CMD_CHAR_SERVER_LIST_ACK,
+
+	CMD_CHAR_LOGIN_GAMESVR_REQ,
+	CMD_CHAR_LOGIN_GAMESVR_ACK,
+
+
 
 	CMD_CHAR_NEW_CHAR_REQ,		//新建一个角色
 	CMD_CHAR_NEW_CHAR_ACK,		//新建一个角色的回包
