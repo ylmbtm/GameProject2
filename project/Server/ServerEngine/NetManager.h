@@ -75,8 +75,6 @@ public:
 
 	BOOL	WorkThread_Listen();
 
-	
-
 	SOCKET				m_hListenSocket;
 
 	HANDLE				m_hCompletePort;

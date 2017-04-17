@@ -296,41 +296,6 @@ BOOL CConnection::ExtractBuffer()
 	return TRUE;
 }
 
-
-
-
-// BOOL CConnection::ExtractBuffer()
-// {
-// 	if(m_dwDataLen < sizeof(PacketHeader))
-// 	{
-// 		return FALSE;
-// 	}
-// 
-//     PacketHeader *pHeader = (PacketHeader *)m_pRecvBuf;
-//     if(pHeader->dwSize > m_dwDataLen)
-//     {
-// 		 //表示还是没有收完数据，继续返回。
-//         return FALSE;
-//     }
-// 
-//     IDataBuffer *pDataBuffer =  CBufferManagerAll::GetInstancePtr()->AllocDataBuff(pHeader->dwSize);
-// 
-// 	memcpy(pDataBuffer->GetBuffer(), m_pRecvBuf, pHeader->dwSize);
-// 
-// 	m_dwDataLen -= pHeader->dwSize;
-// 
-// 	if(m_dwDataLen > 0)
-// 	{
-// 		memmove(m_pRecvBuf, m_pRecvBuf+pHeader->dwSize, m_dwDataLen);
-// 	}
-// 
-//     pDataBuffer->SetTotalLenth(pHeader->dwSize);
-// 
-//     m_pDataHandler->OnDataHandle(pDataBuffer, this);
-// 
-//     return TRUE;
-// }
-
 BOOL CConnection::Close()
 {
     if(m_bConnected)

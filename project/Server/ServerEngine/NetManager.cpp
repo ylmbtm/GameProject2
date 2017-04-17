@@ -71,6 +71,9 @@ BOOL CNetManager::WorkThread_Listen()
 			CLog::GetInstancePtr()->AddLog("新连接,提交数据请求!");
 
 			pConnection->SetConnectionOK(TRUE);
+
+			m_pBufferHandler->OnNewConnect(pConnection);
+
 #ifdef WIN32
 			if(!pConnection->DoReceive())
 			{
@@ -215,6 +218,7 @@ BOOL CNetManager::WorkThread_ProcessEvent()
 						CLog::GetInstancePtr()->AddLog("连接其它服务器成功!");
 
 						pConnection->SetConnectionOK(TRUE);
+						m_pBufferHandler->OnNewConnect(pConnection);
 
 						if(!pConnection->DoReceive())
 						{
@@ -274,8 +278,6 @@ CConnection* CNetManager::AssociateCompletePort( SOCKET hSocket )
 
 		return NULL;
 	}
-
-	m_pBufferHandler->OnNewConnect(pConnection);
 
 	return pConnection;
 }
@@ -619,6 +621,9 @@ CConnection* CNetManager::ConnectToOtherSvr( std::string strIpAddr, UINT16 sPort
 		CLog::GetInstancePtr()->AddLog("邦定套接字到完成端口失败!!");
 		return NULL;
 	}
+
+	pConnection->SetConnectionOK(TRUE);
+	m_pBufferHandler->OnNewConnect(pConnection);
 
 	if(!pConnection->DoReceive())
 	{
