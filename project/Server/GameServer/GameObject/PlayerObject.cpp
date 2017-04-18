@@ -17,14 +17,14 @@ BOOL CPlayerObject::DispatchPacket(NetPacket *pNetPack)
 	return TRUE;
 }
 
-UINT64 CPlayerObject::GetConnectID()
+UINT32 CPlayerObject::GetConnectID()
 {
-	return m_u64ConnID;
+	return m_dwConnID;
 }
 
-VOID CPlayerObject::SetConnectID( UINT64 u64ConnID )
+VOID CPlayerObject::SetConnectID( UINT32 dwConnID )
 {
-	m_u64ConnID = u64ConnID;
+	m_dwConnID = dwConnID;
 
 	return ;
 }

@@ -26,8 +26,6 @@ public:
 
 	BOOL		DispatchPacket( NetPacket *pNetPacket);
 
-	BOOL		SetWorldServerID(UINT32 dwSvrID);
-
 public:
 	BOOL		OnCmdGMCommand(UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper);
 
@@ -41,7 +39,29 @@ public:
 
 	CWillEnterNodeMgr   m_WillEnterNodeMgr;
 
-	UINT32				m_dwWorldServerID;
+	//本服务器的信息
+	UINT32              m_dwServerID;
+	UINT32				m_dwServerType;
+	std::string         m_strIpAddr;
+	UINT16              m_sPort;
+
+public:
+	void			SetStatConnID(UINT64 ConnID){m_u64StatConnID = ConnID;}
+	BOOL			SendCmdToStatConnection(IDataBuffer *pDataBuf);
+
+	void			SetDBConnID(UINT64 ConnID){m_u64DBConnID = ConnID;}
+	BOOL			SendCmdToDBConnection(IDataBuffer *pDataBuf);
+
+	void			SetWorldConnID( UINT32 ConnID ){m_dwWorldConnID = ConnID;}
+	UINT32			GetWorldConnID() {return m_dwWorldConnID;}
+
+	UINT32			GetServerID(){return m_dwServerID;}
+	UINT32			GetServerType(){	return m_dwServerType;}
+protected:
+	UINT64			m_u64DBConnID;
+	UINT64			m_u64StatConnID;
+	UINT32			m_dwWorldConnID;
+	
 };
 
 #endif

@@ -84,6 +84,7 @@ BOOL CGameService::DispatchPacket(NetPacket *pNetPacket)
 
 BOOL CGameService::Uninit()
 {
+	ServiceBase::GetInstancePtr()->StopNetwork();
 	return TRUE;
 }
 

@@ -684,16 +684,16 @@ CConnection* CNetManager::ConnectToOtherSvrEx( std::string strIpAddr, UINT16 sPo
 	return pConnection;
 }
 
-BOOL	CNetManager::SendBufferByConnID(UINT64 u64ConID, IDataBuffer *pDataBuffer)
+BOOL CNetManager::SendBufferByConnID(UINT32 dwConnID, IDataBuffer *pDataBuffer)
 {
-	if((pDataBuffer == NULL)||(u64ConID == 0))
+	if((pDataBuffer == NULL)||(dwConnID == 0))
 	{
 		ASSERT_FAIELD;
 
 		return FALSE;
 	}
 
-	CConnection *pConn = CConnectionMgr::GetInstancePtr()->GetConnectionByConnID(u64ConID);
+	CConnection *pConn = CConnectionMgr::GetInstancePtr()->GetConnectionByConnID(dwConnID);
 	
 	return pConn->SendBuffer(pDataBuffer);
 }

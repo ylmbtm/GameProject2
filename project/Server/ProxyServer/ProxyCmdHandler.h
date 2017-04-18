@@ -12,11 +12,11 @@ public:
 
 	~CProxyCmdHandler();
 
-	BOOL		OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper);
-
 	BOOL		Init(UINT32 dwReserved);
 
 	BOOL		Uninit();
+
+	BOOL		DispatchPacket(NetPacket *pNetPacket);
 
 public:
 	BOOL		RelayToGameServer(CStaticPlayer *pClientObj, IDataBuffer *pBuffer);

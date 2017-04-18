@@ -12,7 +12,7 @@
 
 CGameService::CGameService(void)
 {
-	m_dwWorldServerID = 0;
+	m_dwWorldConnID = 0;
 }
 
 CGameService::~CGameService(void)
@@ -93,6 +93,8 @@ BOOL CGameService::DispatchPacket(NetPacket *pNetPacket)
 
 BOOL CGameService::Uninit()
 {
+	ServiceBase::GetInstancePtr()->StopNetwork();
+
 	return TRUE;
 }
 
@@ -131,10 +133,5 @@ BOOL CGameService::OnCmdHeartBeatReq( UINT16 wCommandID, UINT64 u64ConnID, CBuff
 	return TRUE;
 }
 
-BOOL CGameService::SetWorldServerID( UINT32 dwSvrID )
-{
-	m_dwWorldServerID = dwSvrID;
 
-	return TRUE;
-}
 

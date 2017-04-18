@@ -80,6 +80,7 @@ BOOL CGameService::Init()
 
 BOOL CGameService::Uninit()
 {
+	ServiceBase::GetInstancePtr()->StopNetwork();
 	return TRUE;
 }
 

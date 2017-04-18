@@ -34,14 +34,23 @@ BOOL CProxyCmdHandler::Uninit()
 	return TRUE;
 }
 
-BOOL CProxyCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBufferHelper *pBufferHelper)
+BOOL CProxyCmdHandler::DispatchPacket(NetPacket *pNetPacket)
 {
-	switch(wCommandID)
+	PacketHeader *pPacketHeader = (PacketHeader *)pNetPacket->m_pDataBuffer->GetBuffer();
+	if(pPacketHeader == NULL)
+	{
+		ASSERT_FAIELD;
+		return FALSE;
+	}
+
+	CBufferHelper bh(FALSE, pNetPacket->m_pDataBuffer);
+	
+	switch(pNetPacket->m_dwCmdID)
 	{
 	case CMD_CHAR_ENTER_GAME_REQ:
 		{
 			CLog::GetInstancePtr()->AddLog("---Receive Message:[%s]", "CMD_CHAR_ENTER_GAME_REQ");
-			CHECK_PAYER_ID(pBufferHelper->GetPacketHeader()->u64CharID);
+			CHECK_PAYER_ID(pPacketHeader->u64CharID);
 			/*CWillEnterNode *pWillEnterNode = m_WillEnterNodeMgr.GetByCharID(pBufferHelper->GetPacketHeader()->u64CharID);
 			if(pWillEnterNode == NULL)
 			{
@@ -67,12 +76,12 @@ BOOL CProxyCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBuf
 			
 			*/
 			StCharEnterGameReq CharEnterGameReq;
-			pBufferHelper->Read(CharEnterGameReq);
+			bh.Read(CharEnterGameReq);
 			CHECK_PAYER_ID(CharEnterGameReq.u64CharID);
 			CStaticPlayer *pStaticPlayer = CStaticPlayerMgr::GetInstancePtr()->GetByCharID(CharEnterGameReq.u64CharID);
 			if(pStaticPlayer == NULL)
 			{
-				pStaticPlayer = CStaticPlayerMgr::GetInstancePtr()->CreateStaicPlayer(pBufferHelper->GetPacketHeader()->u64CharID);
+				pStaticPlayer = CStaticPlayerMgr::GetInstancePtr()->CreateStaicPlayer(pPacketHeader->u64CharID);
 				if(pStaticPlayer == NULL)
 				{
 					ASSERT_FAIELD;
@@ -95,7 +104,7 @@ BOOL CProxyCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBuf
 			ASSERT(pStaticPlayer->m_CharState==LS_Online);
 
 			//发向世界服
-			RelayToWorldServer(pStaticPlayer, pBufferHelper->GetDataBuffer());
+			RelayToWorldServer(pStaticPlayer, pNetPacket->m_pDataBuffer);
 		}
 		break;
 	case CMD_SVR_CHAR_WILL_ENTER:
@@ -117,7 +126,7 @@ BOOL CProxyCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBuf
 	case CMD_CHAR_GAME_MANAGER:
 		{
 			CLog::GetInstancePtr()->AddLog("---Receive Message:[%s]----", "CMD_CHAR_GAME_MANAGER");
-			CConnection *pConn = ServiceBase::GetInstancePtr()->GetConnectionByID(u64ConnID);
+			CConnection *pConn = pNetPacket->m_pConnect;
 			if(pConn == NULL)
 			{
 				break;
@@ -130,7 +139,7 @@ BOOL CProxyCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBuf
 			}
 
 			StCharGmCmdReq CharGmCmdReq;
-			pBufferHelper->Read(CharGmCmdReq);
+			bh.Read(CharGmCmdReq);
 	
 			/*if(!OnCmdGMCommand(CMD_CHAR_GAME_MANAGER, u64ConnID, pBufferHelper))
 			{
@@ -151,7 +160,7 @@ BOOL CProxyCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBuf
 	case CMD_CHAR_ENTER_GAME_ACK:
 		{
 			CLog::GetInstancePtr()->AddLog("---Receive Message:[%s]----", "CMD_CHAR_ENTER_GAME_ACK");
-			CStaticPlayer *pStaticPlayer = CStaticPlayerMgr::GetInstancePtr()->GetByCharID(pBufferHelper->GetPacketHeader()->u64CharID);
+			CStaticPlayer *pStaticPlayer = CStaticPlayerMgr::GetInstancePtr()->GetByCharID(pPacketHeader->u64CharID);
 			if(pStaticPlayer == NULL)
 			{
 				ASSERT_FAIELD;
@@ -161,20 +170,19 @@ BOOL CProxyCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBuf
 			ASSERT(pStaticPlayer->m_CharState==LS_Online);
 
 			StCharEnterGameAck CharEnterGameAck;
-
-			pBufferHelper->Read(CharEnterGameAck);
+			bh.Read(CharEnterGameAck);
 
 			pStaticPlayer->SetSceneID(CharEnterGameAck.dwSceneID);
 
-			pStaticPlayer->SetGameSvrConnID(u64ConnID);
+			pStaticPlayer->SetGameSvrConnID(pNetPacket->m_pConnect->GetConnectionID());
 
-			RelayToClient(pStaticPlayer, pBufferHelper->GetDataBuffer());
+			RelayToClient(pStaticPlayer, pNetPacket->m_pDataBuffer);
 		}
 		break;
 	case CMD_CHAR_UPDATE_MYSELF:
 		{
 			CLog::GetInstancePtr()->AddLog("---Receive Message:[%s]----", "CMD_CHAR_UPDATE_MYSELF");
-			CStaticPlayer *pStaticPlayer = CStaticPlayerMgr::GetInstancePtr()->GetByCharID(pBufferHelper->GetPacketHeader()->u64CharID);
+			CStaticPlayer *pStaticPlayer = CStaticPlayerMgr::GetInstancePtr()->GetByCharID(pPacketHeader->u64CharID);
 			if(pStaticPlayer == NULL)
 			{
 				ASSERT_FAIELD;
@@ -186,12 +194,12 @@ BOOL CProxyCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBuf
 				break;
 			}
 
-			RelayToClient(pStaticPlayer, pBufferHelper->GetDataBuffer());
+			RelayToClient(pStaticPlayer, pNetPacket->m_pDataBuffer);
 		}
 		break;
 	default:
 		{
-			CStaticPlayer *pStaticPlayer = CStaticPlayerMgr::GetInstancePtr()->GetByCharID(pBufferHelper->GetPacketHeader()->u64CharID);
+			CStaticPlayer *pStaticPlayer = CStaticPlayerMgr::GetInstancePtr()->GetByCharID(pPacketHeader->u64CharID);
 			if(pStaticPlayer == NULL)
 			{
 				ASSERT_FAIELD;
@@ -213,7 +221,7 @@ BOOL CProxyCmdHandler::OnCommandHandle(UINT16 wCommandID, UINT64 u64ConnID, CBuf
 			{
 				pBufferHelper->GetPacketHeader()->dwSceneID = pStaticPlayer->GetSceneID();
 
-				RelayToGameServer(pStaticPlayer, pBufferHelper->GetDataBuffer());
+				RelayToGameServer(pStaticPlayer, pNetPacket->m_pDataBuffer);
 			}
 		}
 	}
@@ -264,14 +272,14 @@ BOOL CProxyCmdHandler::RelayToWorldServer( CStaticPlayer *pClientObj, IDataBuffe
 		return FALSE;
 	}
 
-	if(CGameService::GetInstancePtr()->m_dwWorldServerID == 0)
+	if(CGameService::GetInstancePtr()->GetWorldConnID() == 0)
 	{
 		ASSERT_FAIELD;
 
 		return FALSE;
 	}
 
-	if(!ServiceBase::GetInstancePtr()->SendCmdToConnection(CGameService::GetInstancePtr()->m_dwWorldServerID, pBuffer))
+	if(!ServiceBase::GetInstancePtr()->SendCmdToConnection(CGameService::GetInstancePtr()->GetWorldConnID(), pBuffer))
 	{
 		ASSERT_FAIELD;
 
@@ -334,7 +342,7 @@ BOOL CProxyCmdHandler::OnCmdDisConnectNotify( UINT16 wCommandID, UINT64 u64ConnI
 	WriteHelper.EndWrite();
 
 	ServiceBase::GetInstancePtr()->SendCmdToConnection(pStaticPlayer->GetGameSvrConnID(), pSendBuffer);
-	ServiceBase::GetInstancePtr()->SendCmdToConnection(CGameService::GetInstancePtr()->m_dwWorldServerID, pSendBuffer);
+	ServiceBase::GetInstancePtr()->SendCmdToConnection(CGameService::GetInstancePtr()->GetWorldConnID(), pSendBuffer);
 	pStaticPlayer->SetGameSvrConnID(0);
 	pStaticPlayer->m_CharState = LS_OffLine;
 	pSendBuffer->Release();

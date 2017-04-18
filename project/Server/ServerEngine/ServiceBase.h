@@ -45,17 +45,17 @@ public:
 public:
 	CConnection*	ConnectToOtherSvr(std::string strIpAddr, UINT16 sPort);
 
-	BOOL			SendCmdToConnection(UINT64 u64ConnID, IDataBuffer *pSrcBuffer);
+	BOOL			SendCmdToConnection(UINT32 dwConnID, IDataBuffer *pSrcBuffer);
 
-	BOOL			SendCmdToConnection(UINT64 u64ConnID, UINT64 u64CharID, UINT32 dwSceneID, IDataBuffer *pSrcBuffer );
+	BOOL			SendCmdToConnection(UINT32 dwConnID, UINT64 u64CharID, UINT32 dwSceneID, IDataBuffer *pSrcBuffer );
 
 	template<typename T>
-	BOOL			SendCmdToConnection(UINT16 uCmdID, T &Data, UINT64 u64ConnID, UINT64 uCharID = 0,UINT32 dwSceneID = 0);
+	BOOL			SendCmdToConnection(UINT16 uCmdID, T &Data, UINT32 dwConnID, UINT64 uCharID = 0,UINT32 dwSceneID = 0);
 
-	CConnection*    GetConnectionByID(UINT64 u64ConnID);
-
+	CConnection* GetConnectionByID(UINT32 dwConnID);
 	BOOL			Update();
-
+	
+protected:
 	IPacketDispatcher				  *m_pPacketDispatcher;
 	ArrayLockFreeQueue<NetPacket>      m_DataQueue;
 	ArrayLockFreeQueue<CConnection*>   m_NewConList;

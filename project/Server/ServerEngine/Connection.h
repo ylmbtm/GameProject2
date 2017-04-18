@@ -110,7 +110,7 @@ public:
 
 	VOID		    DeleteConnection(CConnection *pConnection);
 
-    CConnection*    GetConnectionByConnID(UINT64 dwConnID);
+    CConnection*    GetConnectionByConnID(UINT32 dwConnID);
 
 	///////////////////////////////////////////
 	BOOL		    CloseAllConnection();

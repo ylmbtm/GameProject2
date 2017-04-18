@@ -69,9 +69,9 @@ BOOL ServiceBase::StopNetwork()
 }
 
 template<typename T>
-BOOL ServiceBase::SendCmdToConnection(UINT16 uCmdID, T &Data, UINT64 u64ConnID, UINT64 uCharID,UINT32 dwSceneID)
+BOOL ServiceBase::SendCmdToConnection(UINT16 uCmdID, T &Data, UINT32 dwConnID, UINT64 uCharID,UINT32 dwSceneID)
 {
-	if(u64ConnID == 0)
+	if(dwConnID == 0)
 	{
 		ASSERT_FAIELD;
 
@@ -83,13 +83,13 @@ BOOL ServiceBase::SendCmdToConnection(UINT16 uCmdID, T &Data, UINT64 u64ConnID, 
 	WriteHelper.Write(Data);
 	WriteHelper.EndWrite();
 
-	return CNetManager::GetInstancePtr()->SendBufferByConnID(u64ConnID, WriteHelper.GetDataBuffer());
+	return CNetManager::GetInstancePtr()->SendBufferByConnID(dwConnID, WriteHelper.GetDataBuffer());
 }
 
 
-BOOL ServiceBase::SendCmdToConnection(UINT64 u64ConnID, IDataBuffer *pSrcBuffer )
+BOOL ServiceBase::SendCmdToConnection(UINT32 dwConnID, IDataBuffer *pSrcBuffer )
 {
-	if(u64ConnID == 0)
+	if(dwConnID == 0)
 	{
 		ASSERT_FAIELD;
 
@@ -106,12 +106,12 @@ BOOL ServiceBase::SendCmdToConnection(UINT64 u64ConnID, IDataBuffer *pSrcBuffer 
 
 	//pSendBuffer->CopyFrom(pSrcBuffer);
 
-	return CNetManager::GetInstancePtr()->SendBufferByConnID(u64ConnID, pSrcBuffer);
+	return CNetManager::GetInstancePtr()->SendBufferByConnID(dwConnID, pSrcBuffer);
 }
 
- BOOL ServiceBase::SendCmdToConnection( UINT64 u64ConnID, UINT64 u64CharID, UINT32 dwSceneID, IDataBuffer *pSrcBuffer )
+ BOOL ServiceBase::SendCmdToConnection( UINT32 dwConnID, UINT64 u64CharID, UINT32 dwSceneID, IDataBuffer *pSrcBuffer )
 {
-	if(u64ConnID == 0)
+	if(dwConnID == 0)
 	{
 		ASSERT_FAIELD;
  		return FALSE;
@@ -135,7 +135,7 @@ BOOL ServiceBase::SendCmdToConnection(UINT64 u64ConnID, IDataBuffer *pSrcBuffer 
 	ASSERT(pPacketHeader->u64CharID  != 0);
 	ASSERT(pPacketHeader->wCommandID != 0);
 
-	return CNetManager::GetInstancePtr()->SendBufferByConnID(u64ConnID, pSendBuffer);
+	return CNetManager::GetInstancePtr()->SendBufferByConnID(dwConnID, pSendBuffer);
  }
 
 
@@ -168,9 +168,9 @@ BOOL ServiceBase::OnNewConnect( CConnection *pConnection )
 }
 
 
-CConnection* ServiceBase::GetConnectionByID( UINT64 u64ConnID )
+CConnection* ServiceBase::GetConnectionByID( UINT32 dwConnID )
 {
-	return CConnectionMgr::GetInstancePtr()->GetConnectionByConnID(u64ConnID);
+	return CConnectionMgr::GetInstancePtr()->GetConnectionByConnID(dwConnID);
 }
 
 // BOOL ServiceBase::Update()

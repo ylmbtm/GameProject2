@@ -31,8 +31,6 @@ enum Command_ID
 	CMD_CHAR_LOGIN_GAMESVR_REQ,
 	CMD_CHAR_LOGIN_GAMESVR_ACK,
 
-
-
 	CMD_CHAR_NEW_CHAR_REQ,		//新建一个角色
 	CMD_CHAR_NEW_CHAR_ACK,		//新建一个角色的回包
 

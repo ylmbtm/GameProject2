@@ -39,7 +39,7 @@ public:
 
 	BOOL	Close();
 
-	BOOL	SendBufferByConnID(UINT64 u64ConnID, IDataBuffer *pDataBuffer);
+	BOOL	SendBufferByConnID(UINT32 dwConnID, IDataBuffer *pDataBuffer);
 public:
 	BOOL	InitNetwork();
 

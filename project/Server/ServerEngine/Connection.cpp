@@ -162,6 +162,11 @@ UINT32 CConnection::GetConnectionID()
     return m_dwConnID;
 }
 
+UINT32 CConnection::GetConnectionType()
+{
+	return m_dwConnType;
+}
+
 void CConnection::SetConnectionID( UINT32 dwConnID )
 {
     ASSERT(m_dwConnID == 0);
@@ -618,7 +623,7 @@ CConnection* CConnectionMgr::CreateConnection()
     return pTemp;
 }
 
-CConnection* CConnectionMgr::GetConnectionByConnID( UINT64 dwConnID )
+CConnection* CConnectionMgr::GetConnectionByConnID( UINT32 dwConnID )
 {
     if(dwConnID >= m_vtConnList.size())
     {
