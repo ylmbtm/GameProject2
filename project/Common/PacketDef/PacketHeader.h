@@ -12,7 +12,7 @@ struct PacketHeader
 	UINT8	 CheckCode;
 	UINT16   wCommandID;
 	UINT32   dwSize;
-	UINT32   dwPacketNo;	//包序号 = wCommandID^dwSize+1;
+	UINT32   dwPacketNo;	//生成序号 = wCommandID^dwSize+index(每个包自动增长索引); 还原序号 = pHeader->dwPacketNo - pHeader->wCommandID^pHeader->dwSize;
 	UINT32   dwSceneID;
 	UINT64   u64CharID;
 };

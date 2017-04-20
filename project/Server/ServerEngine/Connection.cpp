@@ -303,11 +303,7 @@ BOOL CConnection::ExtractBuffer()
 
 BOOL CConnection::Close()
 {
-    if(m_bConnected)
-    {
-        m_pDataHandler->OnCloseConnect(this);
-    }
-
+    m_pDataHandler->OnCloseConnect(this);
 	CommonSocket::ShutDownSend(m_hSocket);
 	CommonSocket::ShutDownRecv(m_hSocket);
 	CommonSocket::CloseSocket(m_hSocket);

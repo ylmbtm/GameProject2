@@ -27,7 +27,7 @@ struct NetPacket
 
 class ServiceBase : public IDataHandler//, public CEventFuncManager
 {
-public:
+protected:
 	ServiceBase(void);
 	virtual ~ServiceBase(void);
 public:
@@ -42,7 +42,7 @@ public:
 	BOOL			OnCloseConnect(CConnection *pConnection);
 
 	BOOL			OnNewConnect(CConnection *pConnection);
-public:
+
 	CConnection*	ConnectToOtherSvr(std::string strIpAddr, UINT16 sPort);
 
 	BOOL			SendCmdToConnection(UINT32 dwConnID, IDataBuffer *pSrcBuffer);
@@ -52,9 +52,10 @@ public:
 	template<typename T>
 	BOOL			SendCmdToConnection(UINT16 uCmdID, T &Data, UINT32 dwConnID, UINT64 uCharID = 0,UINT32 dwSceneID = 0);
 
-	CConnection* GetConnectionByID(UINT32 dwConnID);
+	CConnection*	GetConnectionByID(UINT32 dwConnID);
+
 	BOOL			Update();
-	
+
 protected:
 	IPacketDispatcher				  *m_pPacketDispatcher;
 	ArrayLockFreeQueue<NetPacket>      m_DataQueue;

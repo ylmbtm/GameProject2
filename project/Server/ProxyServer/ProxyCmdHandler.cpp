@@ -215,11 +215,11 @@ BOOL CProxyCmdHandler::DispatchPacket(NetPacket *pNetPacket)
 
 			if(u64ConnID < 1000)
 			{
-				RelayToClient(pStaticPlayer, pBufferHelper->GetDataBuffer());
+				RelayToClient(pStaticPlayer, pNetPacket->m_pDataBuffer);
 			}
 			else
 			{
-				pBufferHelper->GetPacketHeader()->dwSceneID = pStaticPlayer->GetSceneID();
+				pPacketHeader->dwSceneID = pStaticPlayer->GetSceneID();
 
 				RelayToGameServer(pStaticPlayer, pNetPacket->m_pDataBuffer);
 			}

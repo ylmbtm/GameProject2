@@ -228,6 +228,7 @@ BOOL CNetManager::WorkThread_ProcessEvent()
 					else
 					{
 						CLog::GetInstancePtr()->AddLog("连接其它服务器失败!");
+						pConnection->SetConnectionOK(FALSE);
 
 						pConnection->Close();
 					}

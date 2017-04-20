@@ -11,6 +11,7 @@
 #include "DataBuffer/DataBuffer.h"
 #include "Connection.h"
 #include "Utility/CommonFunc.h"
+#include "TimerManager.h"
 
 ServiceBase::ServiceBase(void)
 {
@@ -233,6 +234,8 @@ BOOL ServiceBase::Update()
 		//发送通知
 		CConnectionMgr::GetInstancePtr()->DeleteConnection(pConnection);
 	}
+
+	TimerManager::GetInstancePtr()->UpdateTimer();
 
 	return TRUE;
 }
