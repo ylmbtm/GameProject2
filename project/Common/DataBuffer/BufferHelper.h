@@ -23,9 +23,9 @@ public:
 
 	PacketHeader* GetPacketHeader();
 
-	IDataBuffer*    GetDataBuffer();
+	IDataBuffer*  GetDataBuffer();
 
-	UINT8*			GetCurrentPoint();
+	UINT8*	      GetCurrentPoint();
 
 	template <typename T>
 	UINT32		Write(T& _Value);

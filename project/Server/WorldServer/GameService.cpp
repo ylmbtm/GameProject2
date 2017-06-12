@@ -6,6 +6,7 @@
 #include "Utility/CommonEvent.h"
 #include "PacketDef/ClientPacket.h"
 #include "DataBuffer/BufferHelper.h"
+#include "TimerManager.h"
 
 CGameService::CGameService(void)
 {
@@ -77,7 +78,7 @@ BOOL CGameService::Run()
 	{
 		ServiceBase::GetInstancePtr()->Update();
 
-		Sleep(1);
+		CommonThreadFunc::Sleep(1);
 	}
 
 	return TRUE;
@@ -92,12 +93,14 @@ BOOL CGameService::SendCmdToDBConnection(IDataBuffer *pBuffer)
 BOOL CGameService::OnNewConnect(CConnection *pConn)
 {
 	CLog::GetInstancePtr()->AddLog("新连接来到!");
+
 	return TRUE;
 }
 
 BOOL CGameService::OnCloseConnect(CConnection *pConn)
 {
 	CLog::GetInstancePtr()->AddLog("断开连接!");
+
 	return TRUE;
 }
 

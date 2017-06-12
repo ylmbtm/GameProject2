@@ -24,8 +24,8 @@ public:
 
 	BOOL		DispatchPacket( NetPacket *pNetPacket);
 
-public:
-	BOOL       SendCmdToDBConnection(IDataBuffer *pBuffer);
+	BOOL        SendCmdToDBConnection(IDataBuffer *pBuffer);
+
 public:
 	CWorldCmdHandler		m_WorldCmdHandler;
 };

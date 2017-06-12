@@ -8,6 +8,7 @@ public:
 	virtual BOOL operator()(void * pdata){ return TRUE; }
 	virtual UINT32 GetParam() { return 0; }
 	virtual VOID* GetThisAddr() { return 0; }
+	virtual VOID EmptyThisAddr(){}
 };
 
 
@@ -44,6 +45,12 @@ public:
 	{ 
 		return reinterpret_cast<VOID*>(m_pThis);
 	}
+
+	virtual void EmptyThisAddr()
+	{
+		m_pThis = NULL;
+	}
+
 
 private:
 	FuncType m_pFuncPtr;
@@ -109,14 +116,12 @@ public:
 			vec = it->second;
 		}
 
-		long thisAddr = reinterpret_cast<void*>(pObj);
-
 		for (std::vector<CFunctionSlotBase* >::iterator itor = vec->begin(); itor != vec->end(); ++itor)
 		{
-			if ((*itor)->getThisAddr() == thisAddr)
+			if ((*itor)->GetThisAddr() == reinterpret_cast<void*>(pObj))
 			{
 				//反注册并不真实删除，只是将this指针置空
-				(*itor)->emptyThisAddr();
+				(*itor)->EmptyThisAddr();
 			}
 
 		}

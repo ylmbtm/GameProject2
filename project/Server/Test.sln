@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StatisticsServer", "Statist
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WorldServer", "WorldServer\WorldServer.vcxproj", "{1EB19A2A-049A-45AD-A592-E94703018D85}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AccountServer", "AccountServer\AccountServer.vcxproj", "{EF6DEC31-F0BA-4831-92BC-AF3A714D5696}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -49,6 +51,10 @@ Global
 		{1EB19A2A-049A-45AD-A592-E94703018D85}.Debug|Win32.Build.0 = Debug|Win32
 		{1EB19A2A-049A-45AD-A592-E94703018D85}.Release|Win32.ActiveCfg = Release|Win32
 		{1EB19A2A-049A-45AD-A592-E94703018D85}.Release|Win32.Build.0 = Release|Win32
+		{EF6DEC31-F0BA-4831-92BC-AF3A714D5696}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EF6DEC31-F0BA-4831-92BC-AF3A714D5696}.Debug|Win32.Build.0 = Debug|Win32
+		{EF6DEC31-F0BA-4831-92BC-AF3A714D5696}.Release|Win32.ActiveCfg = Release|Win32
+		{EF6DEC31-F0BA-4831-92BC-AF3A714D5696}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

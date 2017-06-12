@@ -101,7 +101,7 @@ BOOL CGameService::Run()
 	{
 		ServiceBase::GetInstancePtr()->Update();
 
-		Sleep(1);
+		CommonThreadFunc::Sleep(1);
 	}
 
 	return TRUE;

@@ -328,7 +328,7 @@ CConnection* CNetManager::AssociateCompletePort( SOCKET hSocket )
 
 	if(-1 == epoll_ctl(m_hCompletePort, EPOLL_CTL_ADD, hSocket,&EpollEvent))
 	{
-		pConnection->Close(FALSE);
+		pConnection->Close();
 
 		return NULL;
 	}
@@ -472,7 +472,7 @@ BOOL CNetManager::WorkThread_ProcessEvent()
 			if(!pConnection->HandleRecvEvent(0))
 			{
 				//基本表明连接己断开，可以关闭连接了。
-				pConnection->Close(TRUE);
+				pConnection->Close();
 			}
 			else
 			{

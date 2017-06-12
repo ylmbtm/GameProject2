@@ -62,7 +62,6 @@ BOOL CGameService::Init()
 		return FALSE;
 	}
 
-
 	UINT32 nAccountPort = CConfigFile::GetInstancePtr()->GetIntValue("account_svr_port");
 	std::string strAccountIp = CConfigFile::GetInstancePtr()->GetStringValue("account_svr_ip");
 	m_pAccountSvrConn = ServiceBase::GetInstancePtr()->ConnectToOtherSvr(strAccountIp, nAccountPort);
@@ -73,6 +72,8 @@ BOOL CGameService::Init()
 	}
 
 	m_LoginCmdHandler.Init();
+
+	
 
 	return TRUE;
 }
@@ -90,7 +91,7 @@ BOOL CGameService::Run()
 	{
 		ServiceBase::GetInstancePtr()->Update();
 
-		Sleep(1);
+		CommonThreadFunc::Sleep(1);
 	}
 
 	return TRUE;
@@ -128,7 +129,7 @@ BOOL CGameService::DispatchPacket(NetPacket *pNetPacket)
 	{
 	default:
 		{
-			m_LoginCmdHandler.DispatchPacket(pNetPacket);
+
 		}
 		break;
 	}

@@ -14,6 +14,7 @@ CC_LIB=-L/usr/lib \
 	-lpthread
 			 
 MY_LIB=-L../Debug \
+	-L../Linux \
 	-lServerEngine
 
 TARGET=../Linux/StatisticsServer

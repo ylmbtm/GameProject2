@@ -209,6 +209,8 @@ CConnection* ServiceBase::GetConnectionByID( UINT32 dwConnID )
 
 BOOL ServiceBase::Update()
 {
+	CConnectionMgr::GetInstancePtr()->CheckConntionAvalible();
+
 	NetPacket item;
 	//处理新连接的通知
 	CConnection *pConnection = NULL;
@@ -239,8 +241,3 @@ BOOL ServiceBase::Update()
 
 	return TRUE;
 }
-
-
-
-
-

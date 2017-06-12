@@ -57,6 +57,25 @@ public:
 		m_pTimerFuncSlot = NULL;
 	}
 
+	~TimeEvent()
+	{
+		Reset();
+	}
+
+	void Reset()
+	{
+		m_dwFireTime     = 0;
+		m_dwSec			 = 0;
+		m_dwData         = 0;
+		m_pNext          = NULL;
+		m_pPrev          = NULL;
+		m_dwRepeateTimes = 0x0FFFFFFF;
+		if(m_pTimerFuncSlot != NULL)
+		{
+			delete m_pTimerFuncSlot;
+		}
+	}
+
 	UINT32 m_dwFireTime;  //触发时间
 	UINT32 m_dwSec;
 	UINT32 m_dwData;
@@ -175,6 +194,8 @@ public:
 	VOID OnTimerEvent( TimeEvent *pEvent );
 
 	BOOL InitTimer();
+
+	BOOL Clear();
 
 	TimeEvent *m_pHead;
 

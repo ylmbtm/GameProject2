@@ -40,7 +40,6 @@ BOOL TimerManager::DelTimer(UINT32 dwSec, UINT32 dwData)
 			break;
 		}
 
-
 		pDelEvent = pDelEvent->m_pNext;
 	}
 
@@ -71,6 +70,8 @@ BOOL TimerManager::DelTimer(UINT32 dwSec, UINT32 dwData)
 	}
 
 	m_pFree = pDelEvent;
+
+	pDelEvent->Reset();
 
 	return FALSE;
 }
@@ -126,5 +127,17 @@ VOID TimerManager::OnTimerEvent(TimeEvent *pEvent)
 BOOL TimerManager::InitTimer()
 {
 	m_dwInitTime = CommonFunc::GetCurrTime();
+	return TRUE;
+}
+
+BOOL TimerManager::Clear()
+{
+	while(m_pHead != NULL)
+	{
+		TimeEvent *pCurEvent = m_pHead;
+		m_pHead = pCurEvent->m_pNext;
+		delete pCurEvent;
+	}
+
 	return TRUE;
 }
